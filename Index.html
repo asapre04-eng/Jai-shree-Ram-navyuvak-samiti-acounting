@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Samiti Ultimate</title>
+
+<script defer src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<style>
+body{margin:0;font-family:sans-serif;background:#f5e6d3}
+.header{background:#ff6f00;color:#fff;padding:15px;text-align:center;font-weight:bold}
+.mode{font-size:12px}
+.app{padding:10px;padding-bottom:70px}
+.card{background:#fff;border-radius:10px;padding:10px;margin:10px 0}
+input,select{width:100%;padding:6px;margin:5px 0}
+button{background:#ff6f00;color:#fff;border:none;padding:6px;border-radius:5px}
+.nav{position:fixed;bottom:0;width:100%;display:flex;background:#fff}
+.nav button{flex:1;background:none;color:#ff6f00}
+table{width:100%;border-collapse:collapse}
+td,th{border:1px solid #ccc;padding:5px}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+🚩 SAMITI ULTIMATE
+<div id="mode">👁 View Mode</div>
+</div>
+
+<div id="app" class="app"></div>
+
+<div class="nav">
+<button onclick="page('dashboard')">🏠</button>
+<button onclick="page('members')">👥</button>
+<button onclick="page('masik')">📅</button>
+<button onclick="page('utsav')">🎉</button>
+<button onclick="page('income')">💰</button>
+<button onclick="page('expense')">💸</button>
+<button onclick="page('settings')">⚙️</button>
+</div>
+
+<script>
+let db,role="viewer",password="123";
+let approvals={adhyaksha:false,upadhyaksha:false,member:false};
+
+// INIT
+document.addEventListener("DOMContentLoaded",()=>{
+firebase.initializeApp({
+apiKey:"AIzaSyCkeJUlGX7Rd42uPkDJkLqaxvHLlrvezUg",
+databaseURL:"https://samiti-app5-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
+db=firebase.database();
+
+db.ref("settings/approvals").on("value",s=>{
+approvals=s.val()||approvals;
+});
+
+page("dashboard");
+});
+
+// ROLE
+function isAdmin(){ return role==="admin"; }
+
+// LOGIN
+function login(){
+if(pass.value===password){
+role=roleSelect.value;
+mode.innerText="🟢 "+role;
+page("dashboard");
+}else alert("Wrong");
+}
+
+// APPROVAL
+function approve(){
+if(role==="adhyaksha") db.ref("settings/approvals/adhyaksha").set(true);
+if(role==="upadhyaksha") db.ref("settings/approvals/upadhyaksha").set(true);
+if(role==="member") db.ref("settings/approvals/member").set(true);
+alert("Approved");
+}
+
+// LOCK
+function lockData(){
+["monthly","income","expense","utsav"].forEach(path=>{
+db.ref(path).once("value",s=>{
+Object.keys(s.val()||{}).forEach(k=>{
+db.ref(path+"/"+k+"/locked").set(true);
+});
+});
+});
+alert("Old Data Locked");
+}
+
+// EDIT CHECK
+function canEdit(v){
+if(!v.locked) return true;
+return approvals.adhyaksha && approvals.upadhyaksha && approvals.member;
+}
+
+// DASHBOARD
+function dashboard(){
+app.innerHTML="<div id='out'></div>";
+db.ref().on("value",s=>{
+let d=s.val()||{};
+let sum=o=>Object.values(o||{}).reduce((a,b)=>a+(b.a||0),0);
+
+let masik=0,pen=0;
+Object.values(d.monthly||{}).forEach(v=>{
+masik+=v.a||0;
+if(v.d){
+let day=new Date(v.d).getDate();
+pen+=day>1?(day-1)*10:0;
+}
+});
+
+out.innerHTML=`
+Masik ₹${masik} + Penalty ₹${pen}<br>
+Income ₹${sum(d.income)}<br>
+Expense ₹${sum(d.expense)}<br>
+Balance ₹${masik+pen+sum(d.income)-sum(d.expense)}
+`;
+});
+}
+
+// MEMBERS
+function members(){
+app.innerHTML=`
+<input id="name"><input id="post">
+<button onclick="addMember()">Add</button>
+<ul id="list"></ul>
+`;
+
+db.ref("members").on("value",s=>{
+list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
+`<li><input value="${v.name}" onchange="update('${k}',this.value)"> (${v.post})</li>`
+).join("");
+});
+}
+
+function addMember(){
+db.ref("members").push({name:name.value,post:post.value});
+}
+
+function update(k,v){
+db.ref("members/"+k).update({name:v});
+}
+
+// MASIK
+const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function masik(){
+app.innerHTML=`
+<select id="month">${months.map(m=>`<option>${m}`)}</select>
+<div id="table"></div>`;
+loadMasik();
+}
+
+function loadMasik(){
+db.ref("members").once("value",mSnap=>{
+let mem=mSnap.val()||{};
+db.ref("monthly").on("value",snap=>{
+let data=snap.val()||{};
+let m=month.value;
+
+let html="<table>";
+Object.entries(mem).forEach(([id,v])=>{
+let key=id+"_"+m;
+let val=data[key]||{};
+let pen=val.d?(new Date(val.d).getDate()-1)*10:0;
+
+html+=`<tr>
+<td>${v.name}</td>
+<td><input ${!canEdit(val)?"disabled":""} value="${val.a||""}" onchange="save('${key}','a',this.value)"></td>
+<td><input type="date" value="${val.d||""}" onchange="save('${key}','d',this.value)"></td>
+<td>₹${pen}</td>
+</tr>`;
+});
+
+html+="</table>";
+table.innerHTML=html;
+});
+});
+}
+
+function save(k,t,v){
+db.ref("monthly/"+k).update({[t]:t==="a"?+v:v});
+}
+
+// UTSAV
+function utsav(){
+app.innerHTML=`
+<input id="uName"><input id="uAmt">
+<button onclick="addU()">Add</button>
+<ul id="list"></ul>`;
+db.ref("utsav").on("value",s=>{
+list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
+`<li>${v.name} ₹${v.a} ${canEdit(v)?`<button onclick="del('${k}','utsav')">X</button>`:"🔒"}</li>`
+).join("");
+});
+}
+
+function addU(){
+db.ref("utsav").push({name:uName.value,a:+uAmt.value,locked:false});
+}
+
+// INCOME / EXPENSE similar
+function income(){ /* same pattern */ }
+function expense(){ /* same pattern */ }
+
+// SETTINGS
+function settings(){
+app.innerHTML=`
+<input id="pass">
+<select id="roleSelect">
+<option>admin</option>
+<option>adhyaksha</option>
+<option>upadhyaksha</option>
+<option>member</option>
+</select>
+<button onclick="login()">Login</button>
+<button onclick="lockData()">Lock</button>
+<button onclick="approve()">Approve</button>
+`;
+}
+
+// DELETE
+function del(id,path){
+db.ref(path+"/"+id).remove();
+}
+
+// ROUTE
+function page(p){
+if(p==="dashboard") dashboard();
+if(p==="members") members();
+if(p==="masik") masik();
+if(p==="utsav") utsav();
+if(p==="settings") settings();
+}
+</script>
+
+</body>
+</html>
