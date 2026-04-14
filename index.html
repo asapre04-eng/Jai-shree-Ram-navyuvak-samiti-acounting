@@ -281,7 +281,25 @@ resetApproval();
 });
 
 }
+function del(id,path){
 
+db.ref(path+"/"+id).once("value",snap=>{
+let val=snap.val()||{};
+
+// 🔒 check
+if(!canEdit(val)){
+return alert("Locked data - approval required");
+}
+
+// delete
+db.ref(path+"/"+id).remove();
+
+// 🔄 approval reset
+resetApproval();
+
+});
+
+}
 // INCOME
 function income(){
 app.innerHTML=`
