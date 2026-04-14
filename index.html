@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Samiti Premium Pro</title>
+<title>Samiti Final Pro</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -11,22 +11,19 @@
 body{margin:0;font-family:sans-serif;background:#f3e6d3}
 .header{background:#ff6f00;color:#fff;padding:15px;text-align:center;font-weight:bold}
 
-.tabs{display:flex;overflow:auto;background:#fff}
-.tabs div{padding:10px;cursor:pointer;color:#ff6f00}
+.tabs{display:flex;background:#fff;overflow:auto}
+.tabs div{padding:10px;color:#ff6f00;cursor:pointer}
 .active{border-bottom:3px solid #ff6f00}
 
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
-.card{background:#fff;border-radius:12px;padding:10px;box-shadow:0 2px 6px #ccc}
+.card{background:#fff;border-radius:12px;padding:12px;box-shadow:0 2px 6px #ccc}
 .big{font-size:18px;color:#ff6f00;font-weight:bold}
 
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px}
 .box{background:#fff;padding:10px;border-radius:10px;text-align:center}
 
 input,select{width:100%;padding:6px;margin:5px 0}
 button{background:#ff6f00;color:#fff;border:none;padding:6px;border-radius:5px;margin:3px}
-
-.lock{color:red}
-.ok{color:green}
 </style>
 </head>
 
@@ -61,21 +58,21 @@ firebase.initializeApp({
 apiKey:"AIzaSyCkeJUlGX7Rd42uPkDJkLqaxvHLlrvezUg",
 databaseURL:"https://samiti-app5-default-rtdb.asia-southeast1.firebasedatabase.app"
 });
+
 db=firebase.database();
 
+// load password
+db.ref("settings/password").once("value",s=>{
+password=s.val()||"123";
+});
+
+// approval
 db.ref("settings/approvals").on("value",s=>{
 approvals=s.val()||approvals;
 });
 
 page("dashboard");
 });
-
-// PENALTY
-function penalty(d){
-if(!d)return 0;
-let day=new Date(d).getDate();
-return day>1?(day-1)*10:0;
-}
 
 // DASHBOARD
 function dashboard(){
@@ -92,6 +89,7 @@ let open=d.settings?.open||0;
 
 out.innerHTML=`
 <div class='card'>Masik<br><div class='big'>₹${masik}</div></div>
+<div class='card'>Utsav<br><div class='big'>₹0</div></div>
 <div class='card'>Aay<br><div class='big'>₹${inc}</div></div>
 <div class='card'>Vyay<br><div class='big'>₹${exp}</div></div>
 <div class='card'>Balance<br><div class='big'>₹${masik+inc-exp+open}</div></div>
@@ -110,10 +108,7 @@ app.innerHTML=`
 
 db.ref("members").on("value",s=>{
 list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
-`<li>
-<input value="${v.name}" onchange="update('${k}',this.value)">
-(${v.post})
-</li>`
+`<li><input value="${v.name}" onchange="update('${k}',this.value)"> (${v.post})</li>`
 ).join("");
 });
 }
@@ -126,7 +121,7 @@ function update(k,v){
 db.ref("members/"+k).update({name:v});
 }
 
-// MASIK GRID
+// MASIK
 function masik(){
 app.innerHTML="<div class='grid' id='grid'></div>";
 
@@ -151,7 +146,7 @@ app.innerHTML=`
 
 db.ref("income").on("value",s=>{
 list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
-`<li>${v.d} ₹${v.a} <button onclick="del('${k}','income')">X</button></li>`
+`<li>${v.d} - ₹${v.a} <button onclick="del('${k}','income')">X</button></li>`
 ).join("");
 });
 }
@@ -171,7 +166,7 @@ app.innerHTML=`
 
 db.ref("expense").on("value",s=>{
 list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
-`<li>${v.d} ₹${v.a} <button onclick="del('${k}','expense')">X</button></li>`
+`<li>${v.d} - ₹${v.a} <button onclick="del('${k}','expense')">X</button></li>`
 ).join("");
 });
 }
@@ -184,9 +179,10 @@ function del(id,path){
 db.ref(path+"/"+id).remove();
 }
 
-// SETTINGS (LOCK + APPROVAL UI)
+// SETTINGS
 function settings(){
 app.innerHTML=`
+<h3>Login</h3>
 <input id="pass" placeholder="Password">
 <select id="roleSelect">
 <option>admin</option>
@@ -194,12 +190,20 @@ app.innerHTML=`
 <option>upadhyaksha</option>
 <option>member</option>
 </select>
-
 <button onclick="login()">Login</button>
+
+<h3>Password Change</h3>
+<input id="newPass">
+<button onclick="changePass()">Change</button>
+
+<h3>Opening Balance</h3>
+<input id="openAmt" type="number">
+<button onclick="saveOpen()">Save</button>
+
+<h3>Lock / Approval</h3>
 <button onclick="lockData()">Lock</button>
 <button onclick="approve()">Approve</button>
 
-<h4>Approval Status</h4>
 Adhyaksha: ${approvals.adhyaksha?"✔":"❌"}<br>
 Upadhyaksha: ${approvals.upadhyaksha?"✔":"❌"}<br>
 Member: ${approvals.member?"✔":"❌"}
@@ -213,6 +217,17 @@ alert(role);
 }else alert("Wrong");
 }
 
+function changePass(){
+password=newPass.value;
+db.ref("settings/password").set(password);
+alert("Password Updated");
+}
+
+function saveOpen(){
+db.ref("settings/open").set(+openAmt.value);
+}
+
+// LOCK
 function lockData(){
 ["monthly","income","expense"].forEach(p=>{
 db.ref(p).once("value",s=>{
@@ -224,6 +239,7 @@ db.ref(p+"/"+k+"/locked").set(true);
 alert("Locked");
 }
 
+// APPROVE
 function approve(){
 db.ref("settings/approvals/"+role).set(true);
 alert("Approved");
