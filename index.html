@@ -91,6 +91,7 @@ if(!d)return 0;
 let day=new Date(d).getDate();
 return day>1?(day-1)*10:0;
 }
+       
 function canEdit(v){
 
 // अगर locked नहीं है → admin edit कर सकता
@@ -192,8 +193,18 @@ Penalty ₹${penalty(val.d)}
 }
 
 function save(k,t,v){
-if(role!=="admin") return alert("Only admin edit");
+
+db.ref("monthly/"+k).once("value",snap=>{
+let val=snap.val()||{};
+
+if(!canEdit(val)){
+return alert("Locked data - approval required");
+}
+
 db.ref("monthly/"+k).update({[t]:t==="a"?+v:v});
+
+});
+
 }
 
 // UTSAV
