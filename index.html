@@ -91,7 +91,18 @@ if(!d)return 0;
 let day=new Date(d).getDate();
 return day>1?(day-1)*10:0;
 }
+function canEdit(v){
 
+// अगर locked नहीं है → admin edit कर सकता
+if(!v.locked) return role==="admin";
+
+// अगर locked है → approval चाहिए
+return role==="admin" &&
+       approvals.adhyaksha &&
+       approvals.upadhyaksha &&
+       approvals.member;
+
+}
 // DASHBOARD
 function dashboard(){
 app.innerHTML="<div class='cards' id='out'></div>";
