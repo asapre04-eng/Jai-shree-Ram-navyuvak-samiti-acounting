@@ -249,7 +249,6 @@ ${v.name}
 }
 
 function saveU(k,v){
-function saveU(k,v){
 
 db.ref("utsav/"+k).once("value",snap=>{
 let val=snap.val()||{};
