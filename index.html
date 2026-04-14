@@ -238,8 +238,18 @@ ${v.name}
 }
 
 function saveU(k,v){
-if(role!=="admin") return alert("Only admin add");
+
+db.ref("utsav/"+k).once("value",snap=>{
+let val=snap.val()||{};
+
+if(!canEdit(val)){
+return alert("Locked data - approval required");
+}
+
 db.ref("utsav/"+k).update({a:+v});
+
+});
+
 }
 
 // INCOME
