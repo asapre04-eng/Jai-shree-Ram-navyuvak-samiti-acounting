@@ -214,8 +214,7 @@ return alert("Locked data - approval required");
 }
 
 db.ref("monthly/"+k).update({
-[t]:t==="a"?+v:v,
-locked:false
+[t]:t==="a"?+v:v
 });
 function resetApproval(){
 
@@ -272,10 +271,8 @@ if(!canEdit(val)){
 return alert("Locked data - approval required");
 }
 
-db.ref("utsav/"+k).update({
-a:+v,
-locked:false
-});
+db.ref("utsav/"+k).update({a:+v});
+function resetApproval(){
 
 db.ref("settings/approvals").set({
 adhyaksha:false,
@@ -331,11 +328,9 @@ data-path="income">❌</button>
 }
 
 function addInc(){
-db.ref("income").push({
-d:d.value,
-a:+a.value,
-locked:false   // 🔥 must
-});
+db.ref("income").push({d:d.value,a:+a.value});
+}
+
 // EXPENSE
 function expense(){
 app.innerHTML=`
@@ -355,11 +350,9 @@ ${v.d} ₹${v.a}
 }
 
 function addExp(){
-db.ref("expense").push({
-d:d.value,
-a:+a.value,
-locked:false
-});
+db.ref("expense").push({d:d.value,a:+a.value});
+}
+
 // SETTINGS
 function settings(){
 app.innerHTML=`
