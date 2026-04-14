@@ -313,6 +313,9 @@ list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
 `<li>
 ${v.d} ₹${v.a}
 <button onclick="del('${k}','income')">❌</button>
+<button onclick="del(this.dataset.id, this.dataset.path)" 
+data-id="${k}" 
+data-path="income">❌</button>
 </li>`
 ).join("");
 });
