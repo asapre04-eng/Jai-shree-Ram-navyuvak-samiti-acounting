@@ -207,7 +207,12 @@ if(!canEdit(val)){
 return alert("Locked data - approval required");
 }
 
-db.ref("monthly/"+k).update({[t]:t==="a"?+v:v});
+db.ref("monthly/"+k).update({
+[t]:t==="a"?+v:v
+});
+
+// 🔥 approval reset after edit
+resetApproval();
 
 });
 
