@@ -94,15 +94,10 @@ return day>1?(day-1)*10:0;
        
 function canEdit(v){
 
-function canEdit(v){
+// नया data → admin edit कर सकता
+if(!v.locked) return role==="admin";
 
-// 🔥 अगर locked field ही नहीं है → नया data
-if(v.locked === undefined) return role==="admin";
-
-// 🔥 अगर locked = false → नया data
-if(v.locked === false) return role==="admin";
-
-// 🔒 अगर locked = true → approval चाहिए
+// locked data → approval चाहिए
 if(
 role==="admin" &&
 approvals.adhyaksha &&
@@ -112,7 +107,6 @@ approvals.member
 return true;
 }
 
-// बाकी सब में block
 return false;
 
 }
