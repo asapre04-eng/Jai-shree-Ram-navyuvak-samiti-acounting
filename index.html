@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Samiti Ultimate Final</title>
+<title>Samiti Ultimate Stable</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -10,19 +10,14 @@
 <style>
 body{margin:0;font-family:sans-serif;background:#f3e6d3}
 .header{background:#ff6f00;color:#fff;padding:15px;text-align:center;font-weight:bold}
-
 .tabs{display:flex;background:#fff;overflow:auto}
 .tabs div{padding:10px;color:#ff6f00;cursor:pointer}
 .active{border-bottom:3px solid #ff6f00}
-
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
 .card{background:#fff;border-radius:12px;padding:12px;box-shadow:0 2px 6px #ccc}
 .big{font-size:18px;color:#ff6f00;font-weight:bold}
-
 input,select{width:100%;padding:6px;margin:5px 0}
 button{background:#ff6f00;color:#fff;border:none;padding:6px;border-radius:5px;margin:3px}
-.lock{color:red}
-.ok{color:green}
 </style>
 </head>
 
@@ -85,21 +80,26 @@ approvals=s.val()||approvals;
 page("dashboard");
 });
 
-// PENALTY
-function penalty(d){
-if(!d)return 0;
-let day=new Date(d).getDate();
-return day>1?(day-1)*10:0;
+// 🔧 RESET APPROVAL
+function resetApproval(){
+db.ref("settings/approvals").set({
+adhyaksha:false,
+upadhyaksha:false,
+member:false
+});
 }
-       
+
+// 🔒 EDIT CONTROL
 function canEdit(v){
 
-// नया data → admin edit कर सकता
-if(!v.locked) return role==="admin";
+if(role !== "admin") return false;
 
-// locked data → approval चाहिए
+// new data
+if(!v || v.locked === false) return true;
+
+// locked + approval
 if(
-role==="admin" &&
+v.locked === true &&
 approvals.adhyaksha &&
 approvals.upadhyaksha &&
 approvals.member
@@ -110,6 +110,14 @@ return true;
 return false;
 
 }
+
+// PENALTY
+function penalty(d){
+if(!d)return 0;
+let day=new Date(d).getDate();
+return day>1?(day-1)*10:0;
+}
+
 // DASHBOARD
 function dashboard(){
 app.innerHTML="<div class='cards' id='out'></div>";
@@ -199,7 +207,6 @@ Penalty ₹${penalty(val.d)}
 }
 
 function save(k,t,v){
-
 db.ref("monthly/"+k).once("value",snap=>{
 let val=snap.val()||{};
 
@@ -208,27 +215,16 @@ return alert("Locked data - approval required");
 }
 
 db.ref("monthly/"+k).update({
-[t]:t==="a"?+v:v
-});
-function resetApproval(){
-
-db.ref("settings/approvals").set({
-adhyaksha:false,
-upadhyaksha:false,
-member:false
+[t]:t==="a"?+v:v,
+locked:false
 });
 
-}
-// 🔥 approval reset after edit
 resetApproval();
-
 });
-
 }
 
 // UTSAV
 function utsav(){
-
 app.innerHTML=`
 <select id="festival">
 ${utsavList.map(f=>`<option>${f}</option>`)}
@@ -257,7 +253,6 @@ ${v.name}
 }
 
 function saveU(k,v){
-
 db.ref("utsav/"+k).once("value",snap=>{
 let val=snap.val()||{};
 
@@ -265,41 +260,29 @@ if(!canEdit(val)){
 return alert("Locked data - approval required");
 }
 
-db.ref("utsav/"+k).update({a:+v});
-function resetApproval(){
-
-db.ref("settings/approvals").set({
-adhyaksha:false,
-upadhyaksha:false,
-member:false
+db.ref("utsav/"+k).update({
+a:+v,
+locked:false
 });
 
-}
-// reset
 resetApproval();
-
 });
-
 }
-function del(id,path){
 
+// DELETE
+function del(id,path){
 db.ref(path+"/"+id).once("value",snap=>{
 let val=snap.val()||{};
 
-// 🔒 check
 if(!canEdit(val)){
 return alert("Locked data - approval required");
 }
 
-// delete
 db.ref(path+"/"+id).remove();
-
-// 🔄 approval reset
 resetApproval();
-
 });
-
 }
+
 // INCOME
 function income(){
 app.innerHTML=`
@@ -310,19 +293,15 @@ app.innerHTML=`
 
 db.ref("income").on("value",s=>{
 list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
-`<li>
-${v.d} ₹${v.a}
+`<li>${v.d} ₹${v.a}
 <button onclick="del('${k}','income')">❌</button>
-<button onclick="del(this.dataset.id, this.dataset.path)" 
-data-id="${k}" 
-data-path="income">❌</button>
 </li>`
 ).join("");
 });
 }
 
 function addInc(){
-db.ref("income").push({d:d.value,a:+a.value});
+db.ref("income").push({d:d.value,a:+a.value,locked:false});
 }
 
 // EXPENSE
@@ -335,8 +314,7 @@ app.innerHTML=`
 
 db.ref("expense").on("value",s=>{
 list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
-`<li>
-${v.d} ₹${v.a}
+`<li>${v.d} ₹${v.a}
 <button onclick="del('${k}','expense')">❌</button>
 </li>`
 ).join("");
@@ -344,7 +322,7 @@ ${v.d} ₹${v.a}
 }
 
 function addExp(){
-db.ref("expense").push({d:d.value,a:+a.value});
+db.ref("expense").push({d:d.value,a:+a.value,locked:false});
 }
 
 // SETTINGS
@@ -361,7 +339,7 @@ app.innerHTML=`
 
 <h3>Password</h3>
 <input id="newPass">
-<button onclick="changePass()">Update My Password</button>
+<button onclick="changePass()">Update</button>
 
 <h3>Opening Balance</h3>
 <input id="openAmt" type="number">
