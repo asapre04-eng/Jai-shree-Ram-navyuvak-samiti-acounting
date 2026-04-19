@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Samiti Stable</title>
+<title>Samiti Final Stable</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -10,12 +10,12 @@
 <style>
 body{margin:0;font-family:sans-serif;background:#f3e6d3}
 .header{background:#ff6f00;color:#fff;padding:15px;text-align:center;font-weight:bold}
-.tabs{display:flex;background:#fff}
-.tabs div{flex:1;text-align:center;padding:10px;color:#ff6f00;cursor:pointer}
+.tabs{display:flex;background:#fff;overflow:auto}
+.tabs div{padding:10px;color:#ff6f00;cursor:pointer}
 .active{border-bottom:3px solid #ff6f00}
 .card{background:#fff;margin:10px;padding:10px;border-radius:10px}
 button{background:#ff6f00;color:#fff;border:none;padding:6px;margin:3px}
-input{width:100%;margin:5px 0;padding:6px}
+input,select{width:100%;padding:6px;margin:5px 0}
 </style>
 </head>
 
@@ -24,29 +24,31 @@ input{width:100%;margin:5px 0;padding:6px}
 <div class="header">🚩 SAMITI SYSTEM</div>
 
 <div class="tabs">
-<div onclick="page('dashboard')" class="active">Dashboard</div>
-<div onclick="page('income')">Income</div>
-<div onclick="page('expense')">Expense</div>
-<div onclick="page('settings')">Settings</div>
+<div onclick="page(event,'dashboard')" class="active">Dashboard</div>
+<div onclick="page(event,'members')">Members</div>
+<div onclick="page(event,'monthly')">Monthly</div>
+<div onclick="page(event,'utsav')">Utsav</div>
+<div onclick="page(event,'income')">Income</div>
+<div onclick="page(event,'expense')">Expense</div>
+<div onclick="page(event,'settings')">Settings</div>
 </div>
 
 <div id="app"></div>
 
 <script>
 
-let db;
-let role="viewer";
-
-let approvals={adhyaksha:false,upadhyaksha:false,member:false};
-
-// INIT
+// 🔥 INIT
 firebase.initializeApp({
 apiKey:"AIzaSyCkeJUlGX7Rd42uPkDJkLqaxvHLlrvezUg",
 databaseURL:"https://samiti-app5-default-rtdb.asia-southeast1.firebasedatabase.app"
 });
-db=firebase.database();
 
-// load approvals
+const db=firebase.database();
+
+let role="viewer";
+let approvals={adhyaksha:false,upadhyaksha:false,member:false};
+
+// approvals load
 db.ref("settings/approvals").on("value",s=>{
 approvals=s.val()||approvals;
 });
@@ -90,9 +92,98 @@ let d=s.val()||{};
 let sum=o=>Object.values(o||{}).reduce((a,b)=>a+(b.a||0),0);
 
 out.innerHTML=`
+<div class='card'>Monthly ₹${sum(d.monthly)}</div>
+<div class='card'>Utsav ₹${sum(d.utsav)}</div>
 <div class='card'>Income ₹${sum(d.income)}</div>
 <div class='card'>Expense ₹${sum(d.expense)}</div>
 `;
+});
+}
+
+// MEMBERS
+function members(){
+app.innerHTML=`
+<input id="name"><input id="post">
+<button onclick="addMember()">Add</button>
+<ul id="list"></ul>
+`;
+
+db.ref("members").on("value",s=>{
+list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
+`<li><input value="${v.name}" onchange="update('${k}',this.value)"> (${v.post})</li>`
+).join("");
+});
+}
+
+function addMember(){
+db.ref("members").push({name:name.value,post:post.value});
+}
+
+function update(k,v){
+db.ref("members/"+k).update({name:v});
+}
+
+// MONTHLY
+function monthly(){
+app.innerHTML=`<div id="list"></div>`;
+
+db.ref("members").once("value",m=>{
+let mem=m.val()||{};
+db.ref("monthly").on("value",s=>{
+let data=s.val()||{};
+
+list.innerHTML=Object.entries(mem).map(([id,v])=>{
+let val=data[id]||{};
+return `
+<div>
+${v.name}
+<input value="${val.a||""}" onchange="saveM('${id}',this.value)">
+</div>`;
+}).join("");
+});
+});
+}
+
+function saveM(k,v){
+db.ref("monthly/"+k).once("value",snap=>{
+let val=snap.val()||{};
+
+if(!canEdit(val)) return alert("Locked");
+
+db.ref("monthly/"+k).update({a:+v,locked:false});
+resetApproval();
+});
+}
+
+// UTSAV
+function utsav(){
+app.innerHTML=`<div id="list"></div>`;
+
+db.ref("members").once("value",m=>{
+let mem=m.val()||{};
+db.ref("utsav").on("value",s=>{
+let data=s.val()||{};
+
+list.innerHTML=Object.entries(mem).map(([id,v])=>{
+let val=data[id]||{};
+return `
+<div>
+${v.name}
+<input value="${val.a||""}" onchange="saveU('${id}',this.value)">
+</div>`;
+}).join("");
+});
+});
+}
+
+function saveU(k,v){
+db.ref("utsav/"+k).once("value",snap=>{
+let val=snap.val()||{};
+
+if(!canEdit(val)) return alert("Locked");
+
+db.ref("utsav/"+k).update({a:+v,locked:false});
+resetApproval();
 });
 }
 
@@ -114,11 +205,7 @@ list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
 }
 
 function addInc(){
-db.ref("income").push({
-d:d.value,
-a:+a.value,
-locked:false
-});
+db.ref("income").push({d:d.value,a:+a.value,locked:false});
 }
 
 // EXPENSE
@@ -132,4 +219,81 @@ app.innerHTML=`
 db.ref("expense").on("value",s=>{
 list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
 `<li>${v.d} ₹${v.a}
-<button
+<button onclick="del('${k}','expense')">❌</button>
+</li>`
+).join("");
+});
+}
+
+function addExp(){
+db.ref("expense").push({d:d.value,a:+a.value,locked:false});
+}
+
+// DELETE
+function del(id,path){
+db.ref(path+"/"+id).once("value",snap=>{
+let val=snap.val()||{};
+if(!canEdit(val)) return alert("Locked");
+db.ref(path+"/"+id).remove();
+resetApproval();
+});
+}
+
+// SETTINGS
+function settings(){
+app.innerHTML=`
+<input id="pass" placeholder="admin=123">
+<button onclick="login()">Login</button>
+<br><br>
+<button onclick="lockData()">🔒 Lock</button>
+<button onclick="approve()">✅ Approve</button>
+`;
+}
+
+function login(){
+if(pass.value==="123"){
+role="admin";
+alert("Admin login");
+}
+}
+
+function lockData(){
+if(role!=="admin") return alert("Admin only");
+
+["income","expense","monthly","utsav"].forEach(p=>{
+db.ref(p).once("value",s=>{
+Object.keys(s.val()||{}).forEach(k=>{
+db.ref(p+"/"+k+"/locked").set(true);
+});
+});
+});
+alert("Locked");
+}
+
+function approve(){
+db.ref("settings/approvals/adhyaksha").set(true);
+db.ref("settings/approvals/upadhyaksha").set(true);
+db.ref("settings/approvals/member").set(true);
+alert("Approved");
+}
+
+// ROUTE
+function page(e,p){
+document.querySelectorAll('.tabs div').forEach(el=>el.classList.remove('active'));
+e.target.classList.add('active');
+
+if(p==="dashboard") dashboard();
+if(p==="members") members();
+if(p==="monthly") monthly();
+if(p==="utsav") utsav();
+if(p==="income") income();
+if(p==="expense") expense();
+if(p==="settings") settings();
+}
+
+dashboard();
+
+</script>
+
+</body>
+</html>
