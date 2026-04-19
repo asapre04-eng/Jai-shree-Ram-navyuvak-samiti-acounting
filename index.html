@@ -41,7 +41,9 @@ button{background:#ff6f00;color:#fff;border:none;padding:6px;border-radius:5px;m
 
 let db;
 let role="viewer";
-
+let app;
+let isAdmin = false;
+  
 let passwords={
 admin:"123",
 adhyaksha:"111",
@@ -62,7 +64,7 @@ const utsavList=[
 
 // INIT
 document.addEventListener("DOMContentLoaded",()=>{
-const app = document.getElementById("app");
+app = document.getElementById("app");
 firebase.initializeApp({
 apiKey:"AIzaSyCkeJUlGX7Rd42uPkDJkLqaxvHLlrvezUg",
 databaseURL:"https://samiti-app5-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -115,12 +117,10 @@ member:false
 // 🔒 EDIT CONTROL
 function canEdit(v){
 
-if(role!=="admin") return false;
+if(!isAdmin) return false;
 
-// new data
 if(!v || v.locked===false) return true;
 
-// locked + approval
 if(
 v.locked===true &&
 approvals.adhyaksha &&
@@ -286,8 +286,7 @@ return alert("Locked data - approval required");
 }
 
 db.ref("monthly/"+k).update({
-[t]:t==="a"?+v:v,
-locked:false
+[t]:t==="a"?+v:v
 });
 
 resetApproval();
@@ -333,8 +332,7 @@ return alert("Locked data - approval required");
 }
 
 db.ref("utsav/"+k).update({
-a:+v,
-locked:false
+a:+v
 });
 
 resetApproval();
@@ -430,15 +428,17 @@ Member: ${approvals.member?"✔":"❌"}
 
 function login(){
 let r=roleSelect.value;
+
 if(pass.value===passwords[r]){
 role=r;
+isAdmin = (r==="admin");
 alert(r+" login");
 }else alert("Wrong");
 }
 
 function changePass(){
 passwords[role]=newPass.value;
-db.ref("settings/passwords").set(passwords);
+db.ref("settings/passwords/"+role).set(newPass.value);
 alert("Updated");
 }
 
