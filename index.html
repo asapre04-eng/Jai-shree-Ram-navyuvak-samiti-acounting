@@ -187,9 +187,10 @@ list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
 }
 
 function addMember(){
+function addMember(){
 
-const n = document.getElementById("name").value;
-const p = document.getElementById("post").value;
+const n = document.getElementById("name").value.trim();
+const p = document.getElementById("post").value.trim();
 
 if(!n) return alert("Name required");
 
@@ -198,7 +199,21 @@ name:n,
 post:p
 });
 
+document.getElementById("name").value="";
+document.getElementById("post").value="";
+
 }
+  function deleteMember(id){
+
+if(role!=="admin"){
+return alert("Only admin can delete");
+}
+
+if(!confirm("Delete member?")) return;
+
+db.ref("members/"+id).remove();
+
+  }
 
 function update(k,v){
 db.ref("members/"+k).update({name:v});
