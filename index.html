@@ -26,13 +26,13 @@ button{background:#ff6f00;color:#fff;border:none;padding:6px;border-radius:5px;m
 <div class="header">🚩 SAMITI SYSTEM</div>
 
 <div class="tabs">
-<div onclick="page('dashboard')" class="active">Dashboard</div>
-<div onclick="page('members')">Members</div>
-<div onclick="page('monthly')">Monthly</div>
-<div onclick="page('utsav')">Utsav</div>
-<div onclick="page('income')">Income</div>
-<div onclick="page('expense')">Expense</div>
-<div onclick="page('settings')">Settings</div>
+<div onclick="page(event,'dashboard')" class="active">Dashboard</div>
+<div onclick="page(event,'members')">Members</div>
+<div onclick="page(event,'monthly')">Monthly</div>
+<div onclick="page(event,'utsav')">Utsav</div>
+<div onclick="page(event,'income')">Income</div>
+<div onclick="page(event,'expense')">Expense</div>
+<div onclick="page(event,'settings')">Settings</div>
 </div>
 
 <div id="app"></div>
@@ -420,9 +420,11 @@ alert("Approved");
 }
 
 // ROUTE
-function page(p){
-document.querySelectorAll('.tabs div').forEach(e=>e.classList.remove('active'));
-event.target.classList.add('active');
+function page(e,p){
+
+document.querySelectorAll('.tabs div').forEach(el=>el.classList.remove('active'));
+
+e.target.classList.add('active');
 
 if(p==="dashboard") dashboard();
 if(p==="members") members();
@@ -431,8 +433,8 @@ if(p==="utsav") utsav();
 if(p==="income") income();
 if(p==="expense") expense();
 if(p==="settings") settings();
-}
 
+}
 </script>
 
 </body>
