@@ -187,7 +187,17 @@ list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
 }
 
 function addMember(){
-db.ref("members").push({name:name.value,post:post.value});
+
+const n = document.getElementById("name").value;
+const p = document.getElementById("post").value;
+
+if(!n) return alert("Name required");
+
+db.ref("members").push({
+name:n,
+post:p
+});
+
 }
 
 function update(k,v){
