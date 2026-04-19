@@ -173,20 +173,35 @@ out.innerHTML=`
 
 // MEMBERS
 function members(){
+
 app.innerHTML=`
-<input id="name"><input id="post">
-<button onclick="addMember()">Add</button>
+<h3>Add Member</h3>
+<input id="name" placeholder="Member Name">
+<input id="post" placeholder="Post">
+<button onclick="addMember()">Add Member</button>
+
+<h3>Members List</h3>
 <ul id="list"></ul>
 `;
 
 db.ref("members").on("value",s=>{
-list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
-`<li><input value="${v.name}" onchange="update('${k}',this.value)"> (${v.post})</li>`
-).join("");
-});
-}
+let data=s.val()||{};
 
-function addMember(){
+list.innerHTML=Object.entries(data).map(([k,v])=>`
+<li>
+<input value="${v.name}" 
+onchange="updateMember('${k}','name',this.value)">
+
+<input value="${v.post}" 
+onchange="updateMember('${k}','post',this.value)">
+
+<button onclick="deleteMember('${k}')">❌</button>
+</li>
+`).join("");
+
+});
+
+}
 function addMember(){
 
 const n = document.getElementById("name").value.trim();
@@ -199,8 +214,20 @@ name:n,
 post:p
 });
 
-document.getElementById("name").value="";
-document.getElementById("post").value="";
+name.value="";
+post.value="";
+
+}
+
+function updateMember(id,field,value){
+
+if(role!=="admin"){
+return alert("Only admin can edit");
+}
+
+db.ref("members/"+id).update({
+[field]:value
+});
 
 }
   function deleteMember(id){
@@ -214,10 +241,6 @@ if(!confirm("Delete member?")) return;
 db.ref("members/"+id).remove();
 
   }
-
-function update(k,v){
-db.ref("members/"+k).update({name:v});
-}
 
 // MONTHLY
 function monthly(){
