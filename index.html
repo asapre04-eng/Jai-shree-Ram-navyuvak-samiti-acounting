@@ -116,13 +116,20 @@ member:false
 
 // 🔒 EDIT CONTROL
 function canEdit(v){
+function canEdit(v){
 
+// सिर्फ admin edit करेगा
 if(!isAdmin) return false;
 
-if(!v || v.locked===false) return true;
+// 🔥 अगर locked field ही नहीं है → NEW DATA
+if(v?.locked === undefined) return true;
 
+// 🔥 अगर unlocked है
+if(v.locked === false) return true;
+
+// 🔒 locked → approval चाहिए
 if(
-v.locked===true &&
+v.locked === true &&
 approvals.adhyaksha &&
 approvals.upadhyaksha &&
 approvals.member
