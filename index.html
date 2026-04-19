@@ -62,6 +62,7 @@ const utsavList=[
 
 // INIT
 document.addEventListener("DOMContentLoaded",()=>{
+
 firebase.initializeApp({
 apiKey:"AIzaSyCkeJUlGX7Rd42uPkDJkLqaxvHLlrvezUg",
 databaseURL:"https://samiti-app5-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -69,18 +70,40 @@ databaseURL:"https://samiti-app5-default-rtdb.asia-southeast1.firebasedatabase.a
 
 db=firebase.database();
 
+// load passwords
 db.ref("settings/passwords").once("value",s=>{
 if(s.val()) passwords=s.val();
 });
 
+// load approvals
 db.ref("settings/approvals").on("value",s=>{
 approvals=s.val()||approvals;
 });
 
+// 🔥 AUTO FIX OLD DATA
+fixOldData();
+
 page("dashboard");
+
 });
 
-// 🔧 RESET APPROVAL
+// 🔧 AUTO DATA FIX
+function fixOldData(){
+
+["income","expense","monthly","utsav"].forEach(path=>{
+db.ref(path).once("value",snap=>{
+let data=snap.val()||{};
+Object.keys(data).forEach(k=>{
+if(data[k].locked===undefined){
+db.ref(path+"/"+k+"/locked").set(false);
+}
+});
+});
+});
+
+}
+
+// 🔄 RESET APPROVAL
 function resetApproval(){
 db.ref("settings/approvals").set({
 adhyaksha:false,
@@ -92,14 +115,14 @@ member:false
 // 🔒 EDIT CONTROL
 function canEdit(v){
 
-if(role !== "admin") return false;
+if(role!=="admin") return false;
 
 // new data
-if(!v || v.locked === false) return true;
+if(!v || v.locked===false) return true;
 
 // locked + approval
 if(
-v.locked === true &&
+v.locked===true &&
 approvals.adhyaksha &&
 approvals.upadhyaksha &&
 approvals.member
@@ -179,7 +202,6 @@ ${months.map(m=>`<option>${m}</option>`)}
 </select>
 <div id="list"></div>
 `;
-
 loadMonthly();
 }
 
@@ -220,6 +242,7 @@ locked:false
 });
 
 resetApproval();
+
 });
 }
 
@@ -266,6 +289,7 @@ locked:false
 });
 
 resetApproval();
+
 });
 }
 
@@ -346,7 +370,7 @@ app.innerHTML=`
 <button onclick="saveOpen()">Save</button>
 
 <h3>Lock / Approval</h3>
-<button onclick="lockData()">🔒 Lock (Admin)</button>
+<button onclick="lockData()">🔒 Lock</button>
 <button onclick="approve()">✅ Approve</button>
 
 Adhyaksha: ${approvals.adhyaksha?"✔":"❌"}<br>
