@@ -1132,6 +1132,236 @@ async function downloadPDF(){
   doc.save(`Jai_Shree_Ram_Navyuvak_Samiti_${year}.pdf`);
 }
 
+  
+/* ===== UTSAV INTEREST REGISTER ===== */
+
+function interest() {
+  app.innerHTML = `
+    <h3>💰 उत्सव ब्याज रजिस्टर</h3>
+
+    <div class="card">
+      <label>उत्सव चुनें</label>
+      <select id="loanFestival">
+        ${utsavList.map(f =>
+          `<option value="${f}">${f}</option>`
+        ).join("")}
+      </select>
+
+      <label>पैसे लेने वाले का नाम</label>
+      <input id="borrower" placeholder="पूरा नाम">
+
+      <label>मोबाइल नंबर</label>
+      <input id="borrowerPhone" type="tel"
+        placeholder="मोबाइल नंबर">
+
+      <label>मूलधन (₹)</label>
+      <input id="principal" type="number"
+        min="1" step="0.01"
+        placeholder="जैसे 5000">
+
+      <label>पैसे देने की तारीख</label>
+      <input id="loanDate" type="date">
+
+      <div id="loanPreview"></div>
+
+      <button onclick="saveLoan()">
+        💾 ब्याज रिकॉर्ड सेव करें
+      </button>
+    </div>
+
+    <h3>📋 दिए गए उधार का रिकॉर्ड</h3>
+    <div id="loanList">लोड हो रहा है...</div>
+  `;
+
+  document.getElementById("loanDate").value =
+    new Date().toISOString().slice(0, 10);
+
+  document.getElementById("principal")
+    .addEventListener("input", updateLoanPreview);
+
+  document.getElementById("loanDate")
+    .addEventListener("change", updateLoanPreview);
+
+  updateLoanPreview();
+  loadLoans();
+}
+
+function calculateLoan(principal, date) {
+  const amount = Number(principal);
+  const start = new Date(date + "T12:00:00");
+  const due = new Date(start);
+
+  due.setFullYear(due.getFullYear() + 1);
+
+  const interestAmount =
+    Math.round(amount * 30 / 100 * 100) / 100;
+
+  return {
+    interest: interestAmount,
+    total: amount + interestAmount,
+    dueDate: [
+      due.getFullYear(),
+      String(due.getMonth() + 1).padStart(2, "0"),
+      String(due.getDate()).padStart(2, "0")
+    ].join("-")
+  };
+}
+
+function updateLoanPreview() {
+  const p = Number(document.getElementById("principal")?.value);
+  const date = document.getElementById("loanDate")?.value;
+  const preview = document.getElementById("loanPreview");
+
+  if (!preview) return;
+
+  if (!(p > 0) || !date) {
+    preview.textContent = "";
+    return;
+  }
+
+  const c = calculateLoan(p, date);
+
+  preview.textContent =
+    `एक साल का ब्याज: ₹${c.interest} | ` +
+    `कुल वापसी: ₹${c.total} | ` +
+    `नियत तारीख: ${c.dueDate}`;
+}
+
+async function saveLoan() {
+  if (role !== "admin") {
+    return alert("केवल Admin रिकॉर्ड सेव कर सकता है।");
+  }
+
+  const festival =
+    document.getElementById("loanFestival").value;
+  const borrower =
+    document.getElementById("borrower").value.trim();
+  const phone =
+    document.getElementById("borrowerPhone").value.trim();
+  const principal =
+    Number(document.getElementById("principal").value);
+  const issueDate =
+    document.getElementById("loanDate").value;
+
+  if (!borrower || !issueDate ||
+      !Number.isFinite(principal) || principal <= 0) {
+    return alert("नाम, सही रकम और तारीख भरें।");
+  }
+
+  const c = calculateLoan(principal, issueDate);
+
+  const record = {
+    festival,
+    borrower,
+    phone,
+    principal,
+    annualRate: 30,
+    interest: c.interest,
+    totalDue: c.total,
+    issueDate,
+    dueDate: c.dueDate,
+    status: "pending",
+    principalReceived: 0,
+    interestReceived: 0,
+    returnedAt: ""
+  };
+
+  try {
+    await db.ref(`data/${year}/utsavLoans`).push(record);
+
+    alert("ब्याज रिकॉर्ड सेव हो गया।");
+    interest();
+  } catch (err) {
+    console.error(err);
+    alert("रिकॉर्ड सेव नहीं हुआ: " + err.message);
+  }
+}
+
+async function loadLoans() {
+  const list = document.getElementById("loanList");
+  if (!list) return;
+
+  try {
+    const snap = await db.ref(
+      `data/${year}/utsavLoans`
+    ).once("value");
+
+    const records = snap.val() || {};
+    list.replaceChildren();
+
+    if (!Object.keys(records).length) {
+      list.textContent = "अभी कोई उधार रिकॉर्ड नहीं है।";
+      return;
+    }
+
+    Object.entries(records).forEach(([id, v]) => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const heading = document.createElement("h4");
+      heading.textContent = `${v.festival} — ${v.borrower}`;
+
+      const details = document.createElement("p");
+      details.textContent =
+        `मूलधन ₹${v.principal} | ब्याज ₹${v.interest} | ` +
+        `कुल वापसी ₹${v.totalDue} | तारीख ${v.dueDate}`;
+
+      const status = document.createElement("p");
+      status.textContent =
+        v.status === "returned"
+          ? "✅ मूलधन और ब्याज वापस मिला"
+          : "⏳ वापसी बाकी";
+
+      card.append(heading, details, status);
+
+      if (v.status !== "returned") {
+        const btn = document.createElement("button");
+        btn.textContent = "पूरा पैसा वापस मिला";
+        btn.onclick = () => markLoanReturned(id);
+        card.appendChild(btn);
+      }
+
+      list.appendChild(card);
+    });
+  } catch (err) {
+    console.error(err);
+    list.textContent = "रिकॉर्ड लोड नहीं हो पाया।";
+  }
+}
+
+async function markLoanReturned(id) {
+  if (role !== "admin") {
+    return alert("केवल Admin वापसी दर्ज कर सकता है।");
+  }
+
+  if (!confirm(
+    "क्या पूरा मूलधन और ब्याज वास्तव में वापस मिल गया है?"
+  )) return;
+
+  const ref = db.ref(`data/${year}/utsavLoans/${id}`);
+
+  try {
+    const snap = await ref.once("value");
+    const loan = snap.val();
+
+    if (!loan || loan.status === "returned") {
+      return alert("रिकॉर्ड नहीं मिला या पहले ही वापस दर्ज है।");
+    }
+
+    await ref.update({
+      status: "returned",
+      principalReceived: Number(loan.principal),
+      interestReceived: Number(loan.interest),
+      returnedAt: new Date().toISOString()
+    });
+
+    alert("वापसी दर्ज हो गई।");
+    loadLoans();
+  } catch (err) {
+    console.error(err);
+    alert("वापसी सेव नहीं हुई: " + err.message);
+  }
+                                                     }
 // SETTINGS
 function settings(){
 app.innerHTML=`
