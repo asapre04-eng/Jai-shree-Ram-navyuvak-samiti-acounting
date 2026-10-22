@@ -209,3 +209,121 @@ async function updateAvailableBalance(){
  const el=document.getElementById("availableBalance");if(!el)return;
  try{const d=await readYear(),f=document.getElementById("loanFestival").value,l=await festivalLedger(d,f);el.textContent=`इस उत्सव की अनुमानित उपलब्ध शेष राशि: ${money(l.balance)}`}catch(e){el.textContent="शेष राशि लोड नहीं हुई"}
 }
+  async function saveLoan(){
+ if(!isAdmin())return alert("केवल Admin रिकॉर्ड सेव कर सकता है");
+ const festival=document.getElementById("loanFestival").value,borrower=document.getElementById("borrower").value.trim(),phone=document.getElementById("borrowerPhone").value.trim(),principal=Number(document.getElementById("principal").value),issueDate=document.getElementById("loanDate").value;
+ if(!borrower||!issueDate||!Number.isFinite(principal)||principal<=0)return alert("नाम, सही रकम और तारीख भरें");
+ const d=await readYear(),ledger=await festivalLedger(d,festival);
+ if(principal>ledger.balance)return alert(`इस उत्सव की उपलब्ध शेष राशि ${money(ledger.balance)} है। इससे अधिक उधार दर्ज नहीं कर सकते। पहले चंदा/खर्च सही करें।`);
+ const c=calculateLoan(principal,issueDate);
+ const record={festival,borrower,phone,principal,annualRate:30,interest:c.interest,totalDue:c.total,issueDate,dueDate:c.dueDate,status:"pending",principalReceived:0,interestReceived:0,returnedAt:"",locked:false};
+ try{await path("utsavLoans").push(record);alert("उधार रिकॉर्ड सेव हो गया");interest()}catch(e){alert("सेव नहीं हुआ: "+e.message)}
+}
+async function loadLoans(){
+ const list=document.getElementById("loanList");if(!list)return;
+ try{const snap=await path("utsavLoans").once("value"),records=snap.val()||{};list.replaceChildren();
+ if(!Object.keys(records).length){list.innerHTML='<div class="empty">अभी कोई उधार रिकॉर्ड नहीं है।</div>';return}
+ Object.entries(records).forEach(([id,v])=>{
+ const card=document.createElement("div");card.className="card";
+ const h=document.createElement("h4");h.textContent=`${v.festival} — ${v.borrower}`;
+ const p=document.createElement("p");p.textContent=`मोबाइल: ${v.phone||"—"} | मूलधन ${money(v.principal)} | सालाना ब्याज ${money(v.interest)} | कुल वापसी ${money(v.totalDue)} | देने की तारीख ${v.issueDate} | नियत तारीख ${v.dueDate}`;
+ const st=document.createElement("p");st.textContent=v.status==="returned"?`✅ वापस मिला: मूलधन ${money(v.principalReceived)} + ब्याज ${money(v.interestReceived)} (${v.returnedAt||""})`:"⏳ वापसी बाकी";
+ card.append(h,p,st);
+ const actions=document.createElement("div");
+ const edit=document.createElement("button");edit.textContent="✏️ Edit";edit.onclick=()=>editLoan(id);actions.appendChild(edit);
+ const del=document.createElement("button");del.textContent="🗑️ Delete";del.className="danger";del.onclick=()=>deleteLoan(id);actions.appendChild(del);
+ if(v.status!=="returned"){const b=document.createElement("button");b.textContent="पूरा मूलधन + ब्याज वापस मिला";b.onclick=()=>markLoanReturned(id);actions.appendChild(b)}
+ card.appendChild(actions);list.appendChild(card)
+ })
+ }catch(e){list.textContent="लोड नहीं हुआ: "+e.message}
+}
+
+async function editLoan(id){
+ if(!isAdmin())return alert("केवल Admin रिकॉर्ड एडिट कर सकता है");
+ try{
+  const ref=path("utsavLoans/"+id),snap=await ref.once("value"),v=snap.val();if(!v)return alert("रिकॉर्ड नहीं मिला");
+  const festival=prompt("उत्सव का नाम:\n"+utsavList.join(" / "),v.festival||utsavList[0]);if(festival===null)return;
+  if(!utsavList.includes(festival.trim()))return alert("उत्सव का नाम सूची में से सही चुनें");
+  const borrower=prompt("पैसे लेने वाले का नाम:",v.borrower||"");if(borrower===null)return;
+  const phone=prompt("मोबाइल नंबर:",v.phone||"");if(phone===null)return;
+  const principalRaw=prompt("मूलधन ₹:",String(v.principal??""));if(principalRaw===null)return;const principal=Number(principalRaw);
+  if(!borrower.trim()||!Number.isFinite(principal)||principal<=0)return alert("नाम और मूलधन सही भरें");
+  const issueDate=prompt("पैसे देने की तारीख (YYYY-MM-DD):",v.issueDate||"");if(issueDate===null)return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(issueDate)||Number.isNaN(new Date(issueDate+"T12:00:00").getTime()))return alert("तारीख YYYY-MM-DD में भरें");
+  const c=calculateLoan(principal,issueDate),updates={festival:festival.trim(),borrower:borrower.trim(),phone:phone.trim(),principal,issueDate,interest:c.interest,totalDue:c.total,dueDate:c.dueDate};
+  if(v.status==="returned"&&Number(v.principalReceived)!==principal)return alert("यह रिकॉर्ड पहले ही वापस दर्ज है। लौटाए गए मूलधन को बदलने के लिए पहले वापसी स्थिति की जाँच करें।");
+  await ref.update(updates);alert("ब्याज रिकॉर्ड अपडेट हो गया");interest();
+ }catch(e){alert("एडिट नहीं हुआ: "+e.message)}
+}
+async function deleteLoan(id){
+ if(!isAdmin())return alert("केवल Admin रिकॉर्ड डिलीट कर सकता है");
+ if(!confirm("क्या आप यह ब्याज/उधार रिकॉर्ड हमेशा के लिए हटाना चाहते हैं? यह कार्रवाई वापस नहीं होगी।"))return;
+ try{await path("utsavLoans/"+id).remove();alert("रिकॉर्ड डिलीट हो गया");interest()}catch(e){alert("डिलीट नहीं हुआ: "+e.message)}
+}
+
+async function markLoanReturned(id){
+ if(!isAdmin())return alert("केवल Admin वापसी दर्ज कर सकता है");
+ if(!confirm("क्या पूरा मूलधन और पूरा ब्याज वास्तव में प्राप्त हो गया है?"))return;
+ const ref=path("utsavLoans/"+id);
+ try{const s=await ref.once("value"),v=s.val();if(!v||v.status==="returned")return alert("रिकॉर्ड नहीं मिला या पहले ही वापस दर्ज है");
+ await ref.update({status:"returned",principalReceived:Number(v.principal),interestReceived:Number(v.interest),returnedAt:new Date().toISOString().slice(0,10)});
+ alert("वापसी दर्ज हो गई");loadLoans()
+ }catch(e){alert("वापसी सेव नहीं हुई: "+e.message)}
+}
+async function income(){
+ app.innerHTML=`<h3>📥 अन्य आय</h3><div class="card"><label>विवरण</label><input id="incomeDesc" placeholder="आय का विवरण"><label>रकम ₹</label><input id="incomeAmt" type="number" min="0"><label>किस उत्सव से संबंधित? (वैकल्पिक)</label><select id="incomeFestival"><option value="">सामान्य आय</option>${utsavList.map(f=>`<option>${esc(f)}</option>`).join("")}</select><button onclick="addInc()">आय जोड़ें</button></div><div id="incomeList"></div>`;
+ try{const s=await path("income").once("value"),data=s.val()||{};document.getElementById("incomeList").innerHTML=Object.entries(data).map(([k,v])=>`<div class="card">${esc(v.d)} — ${money(v.a)} ${v.festival?"· "+esc(v.festival):""}<button class="danger" onclick="delRecord('${k}','income')">हटाएँ</button></div>`).join("")||'<div class="empty">कोई आय रिकॉर्ड नहीं।</div>'}catch(e){document.getElementById("incomeList").textContent=e.message}
+}
+async function addInc(){if(!isAdmin())return alert("केवल Admin अनुमति है");const d=document.getElementById("incomeDesc").value.trim(),a=Number(document.getElementById("incomeAmt").value),festival=document.getElementById("incomeFestival").value;if(!d||!Number.isFinite(a)||a<=0)return alert("विवरण और सही रकम भरें");try{await path("income").push({d,a,festival,locked:false});income()}catch(e){alert(e.message)}}
+async function expense(){
+ app.innerHTML=`<h3>📤 खर्च</h3><div class="notice">उत्सव का खर्च उसी उत्सव के साथ जोड़ें ताकि प्रत्येक उत्सव की बची राशि सही निकले।</div><div class="card"><label>खर्च का विवरण</label><input id="expenseDesc" placeholder="खर्च का विवरण"><label>रकम ₹</label><input id="expenseAmt" type="number" min="0"><label>उत्सव</label><select id="expenseFestival"><option value="">सामान्य समिति खर्च</option>${utsavList.map(f=>`<option>${esc(f)}</option>`).join("")}</select><label>खर्च की तारीख</label><input id="expenseDate" type="date"><button onclick="addExp()">खर्च जोड़ें</button></div><div id="expenseList"></div>`;
+ document.getElementById("expenseDate").value=new Date().toISOString().slice(0,10);
+ try{const s=await path("expense").once("value"),data=s.val()||{};document.getElementById("expenseList").innerHTML=Object.entries(data).map(([k,v])=>`<div class="card">${esc(v.d)} — ${money(v.a)} ${v.festival?"· "+esc(v.festival):"· सामान्य खर्च"}<small> ${esc(v.date||"")}</small><button class="danger" onclick="delRecord('${k}','expense')">हटाएँ</button></div>`).join("")||'<div class="empty">कोई खर्च रिकॉर्ड नहीं।</div>'}catch(e){document.getElementById("expenseList").textContent=e.message}
+}
+async function addExp(){if(!isAdmin())return alert("केवल Admin अनुमति है");const d=document.getElementById("expenseDesc").value.trim(),a=Number(document.getElementById("expenseAmt").value),festival=document.getElementById("expenseFestival").value,date=document.getElementById("expenseDate").value;if(!d||!Number.isFinite(a)||a<=0)return alert("विवरण और सही रकम भरें");try{await path("expense").push({d,a,festival,date,locked:false});expense()}catch(e){alert(e.message)}}
+async function delRecord(id,p){if(!isAdmin())return alert("केवल Admin अनुमति है");if(!confirm("यह रिकॉर्ड हटाएँ?"))return;try{const s=await path(p+"/"+id).once("value");if(!canEdit(s.val()||{}))return alert("Locked record: approval आवश्यक");await path(p+"/"+id).remove();if(p==="income")income();else expense()}catch(e){alert(e.message)}}
+function settings(){
+ app.innerHTML=`<h3>⚙️ Settings</h3><div class="card"><h4>Login</h4><label>Role</label><select id="roleSelect"><option value="admin">admin</option><option value="adhyaksha">adhyaksha</option><option value="upadhyaksha">upadhyaksha</option><option value="member">member</option></select><label>Password</label><input id="loginPass" type="password"><button onclick="login()">Login</button><span class="pill">वर्तमान role: ${esc(role)}</span></div>
+ <div class="card"><h4>Password बदलें</h4><label>नया पासवर्ड</label><input id="newPass" type="password"><button onclick="changePass()">अपडेट</button></div>
+ <div class="card"><h4>Opening Balance</h4><label>शुरुआती राशि ₹</label><input id="openAmt" type="number" min="0"><button onclick="saveOpen()">सेव करें</button></div>
+ <div class="card"><h4>Backup / Restore</h4><button onclick="backupData()">Backup डाउनलोड</button><label>JSON backup फ़ाइल चुनें</label><input type="file" id="restoreFile" accept=".json,application/json"><button onclick="restoreData()">Restore</button></div>
+ <div class="card"><h4>Lock / Approval</h4><button onclick="lockData()">🔒 वर्तमान वर्ष के रिकॉर्ड Lock करें</button><button onclick="approve()">✅ अपनी Approval दर्ज करें</button><p>Adhyaksha: ${approvals.adhyaksha?"✔":"❌"}<br>Upadhyaksha: ${approvals.upadhyaksha?"✔":"❌"}<br>Member: ${approvals.member?"✔":"❌"}</p></div>
+ <div class="notice">सुरक्षा सूचना: इस ऐप में role/password की जाँच client-side है। वास्तविक सुरक्षा के लिए Firebase Authentication और Database Rules लगाना आवश्यक है।</div>`;
+}
+async function login(){const r=document.getElementById("roleSelect").value,p=document.getElementById("loginPass").value;if(p===passwords[r]){role=r;alert(r+" login");settings()}else alert("गलत पासवर्ड")}
+async function changePass(){if(!role||role==="viewer")return alert("पहले login करें");const p=document.getElementById("newPass").value.trim();if(p.length<4)return alert("कम से कम 4 अक्षर का पासवर्ड रखें");try{await db.ref("settings/passwords/"+role).set(p);passwords[role]=p;alert("पासवर्ड अपडेट हुआ");settings()}catch(e){alert(e.message)}}
+async function saveOpen(){if(!isAdmin())return alert("केवल Admin");const a=Number(document.getElementById("openAmt").value);if(!Number.isFinite(a)||a<0)return alert("सही राशि भरें");try{await db.ref("settings/open").set(a);alert("Opening balance सेव हुआ")}catch(e){alert(e.message)}}
+async function backupData(){try{const s=await db.ref().once("value"),blob=new Blob([JSON.stringify(s.val(),null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="samiti-backup-"+year+".json";a.click();URL.revokeObjectURL(a.href)}catch(e){alert("Backup नहीं हुआ: "+e.message)}}
+async function restoreData(){if(!isAdmin())return alert("केवल Admin");const file=document.getElementById("restoreFile").files[0];if(!file)return alert("पहले फ़ाइल चुनें");if(!confirm("Restore पूरे Firebase data को बदल सकता है। पहले backup लिया है? जारी रखें?"))return;try{const data=JSON.parse(await file.text());if(!data||typeof data!=="object")throw Error("Invalid JSON");await db.ref().set(data);alert("Restore पूरा हुआ");page("dashboard")}catch(e){alert("Restore नहीं हुआ: "+e.message)}}
+async function lockData(){if(!isAdmin())return alert("केवल Admin");if(!confirm("वर्तमान वर्ष के monthly, income, expense और utsav रिकॉर्ड lock करें?"))return;try{for(const p of ["monthly","income","expense","utsav"]){const s=await path(p).once("value"),data=s.val()||{},updates={};Object.keys(data).forEach(k=>updates[k+"/locked"]=true);if(Object.keys(updates).length)await path(p).update(updates)}alert("रिकॉर्ड Lock हो गए");settings()}catch(e){alert(e.message)}}
+async function approve(){if(role==="admin"||role==="viewer")return alert("Approval के लिए Adhyaksha, Upadhyaksha या Member login करें");try{await db.ref("settings/approvals/"+role).set(true);alert("Approval दर्ज हुई");settings()}catch(e){alert(e.message)}}
+async function downloadPDF(){
+ try{
+ const {jsPDF}=window.jspdf,doc=new jsPDF({unit:"pt",format:"a4"}),d=await readYear(),open=await getOpening(),pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight();
+ const cur=n=>"Rs. "+(Number(n)||0).toLocaleString("en-IN",{maximumFractionDigits:2});
+ const monthly=sumAmounts(d.monthly),utsav=sumAmounts(d.utsav),inc=sumAmounts(d.income),exp=sumAmounts(d.expense),pen=Object.values(d.monthly||{}).reduce((s,v)=>s+penalty(v.d),0);
+ const loans=Object.values(d.utsavLoans||{}),outstanding=loans.filter(v=>v.status!=="returned").reduce((s,v)=>s+(Number(v.principal)||0),0),interestReceived=loans.reduce((s,v)=>s+(Number(v.interestReceived)||0),0),cash=open+monthly+pen+utsav+inc-exp-outstanding+interestReceived;
+ function head(){doc.setFillColor(255,111,0);doc.rect(0,0,pw,58,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("JAI SHREE RAM NAVYUVAK SAMITI",pw/2,25,{align:"center"});doc.setFont("helvetica","normal");doc.setFontSize(10);doc.text("Financial Report - "+year,pw/2,43,{align:"center"});doc.setTextColor(80);doc.setFontSize(8);doc.text("Generated: "+new Date().toLocaleDateString(),20,ph-15)}
+ const hook=()=>head();let y=78;
+ doc.setFontSize(11);doc.text(`Opening ${cur(open)} | Monthly ${cur(monthly)} | Penalty ${cur(pen)}`,20,y);y+=18;doc.text(`Utsav ${cur(utsav)} | Other income ${cur(inc)} | Expense ${cur(exp)}`,20,y);y+=18;doc.text(`Outstanding principal ${cur(outstanding)} | Interest received ${cur(interestReceived)} | Cash ${cur(cash)}`,20,y);y+=12;
+ doc.autoTable({startY:y,head:[["Monthly key","Amount","Date","Penalty"]],body:Object.entries(d.monthly||{}).map(([k,v])=>[k,cur(v.a),v.d||"-",cur(penalty(v.d))]),styles:{fontSize:8},headStyles:{fillColor:[255,111,0]},margin:{left:20,right:20},didDrawPage:hook});
+ y=doc.lastAutoTable.finalY+12;
+ doc.autoTable({startY:y,head:[["Utsav member key","Amount"]],body:Object.entries(d.utsav||{}).map(([k,v])=>[k,cur(v.a)]),styles:{fontSize:8},headStyles:{fillColor:[255,111,0]},margin:{left:20,right:20},didDrawPage:hook});
+ y=doc.lastAutoTable.finalY+12;
+ doc.autoTable({startY:y,head:[["Interest register","Festival","Borrower","Principal","Interest","Total due","Status"]],body:loans.map(v=>[v.issueDate||"-",v.festival||"-",v.borrower||"-",cur(v.principal),cur(v.interest),cur(v.totalDue),v.status||"-"]),styles:{fontSize:7},headStyles:{fillColor:[255,111,0]},margin:{left:20,right:20},didDrawPage:hook});
+ y=doc.lastAutoTable.finalY+12;
+ doc.autoTable({startY:y,head:[["Income","Amount","Festival"]],body:Object.values(d.income||{}).map(v=>[v.d||"-",cur(v.a),v.festival||"-"]),styles:{fontSize:8},headStyles:{fillColor:[46,125,50]},margin:{left:20,right:20},didDrawPage:hook});
+ y=doc.lastAutoTable.finalY+12;
+ doc.autoTable({startY:y,head:[["Expense","Amount","Festival","Date"]],body:Object.values(d.expense||{}).map(v=>[v.d||"-",cur(v.a),v.festival||"General",v.date||"-"]),styles:{fontSize:8},headStyles:{fillColor:[198,40,40]},margin:{left:20,right:20},didDrawPage:hook});
+ for(let i=1;i<=doc.internal.getNumberOfPages();i++){doc.setPage(i);head();doc.setTextColor(80);doc.text(`Page ${i} / ${doc.internal.getNumberOfPages()}`,pw-75,ph-15)}
+ doc.save(`Jai_Shree_Ram_Samiti_${year}.pdf`);
+ }catch(e){console.error(e);alert("PDF नहीं बना: "+e.message)}
+}
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e});
+async function installApp(){if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null}else alert("Install option उपलब्ध नहीं है या ऐप पहले से install है।")}
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(console.error));
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
