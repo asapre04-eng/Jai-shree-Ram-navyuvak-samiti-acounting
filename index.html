@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="hi">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Jai Shree Ram Navyuvak Samiti</title>
-
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="/manifest.json">
@@ -13,1538 +13,199 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-  
 <style>
-body{
-margin:0;
-font-family:system-ui;
-background:	#FF5F15;
-}
-
-/* HEADER */
-.header{
-width:100%;
-position:relative;
-
-/* 🔥 ये हटाओ */
-height:auto;
-}
-.header-img{
-width:100%;
-height:auto;   /* 🔥 full image */
-display:block;
-}
-.header-text{
-position:absolute;
-bottom:12px;
-left:50%;
-transform:translateX(-50%);
-white-space:nowrap;
-
-font-family:'Poppins', sans-serif;
-font-weight:800;   /* 🔥 strong bold */
-font-size:20px;
-
-color:#ff6f00;
-letter-spacing:1px;
-
-text-align:center;
-z-index:2;
-
-/* 🔥 glow effect */
-text-shadow:
-0 0 6px #ff9800,
-0 0 12px #ff5722,
-0 0 18px rgba(255,87,34,0.6);
-}
-
-/* TABS */
-.tabs{
-display:flex;
-background:#ff6f00;
-overflow:auto;
-}
-
-.tabs div{
-padding:12px;
-color:#fff;
-font-size:14px;
-cursor:pointer;
-white-space:nowrap;
-}
-
-.active{
-background:#fff;
-color:#ff6f00;
-border-radius:10px 10px 0 0;
-}
-
-/* DASHBOARD TITLE */
-.title{
-padding:12px;
-font-weight:bold;
-color:#444;
-}
-
-/* CARDS GRID */
-.cards{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-padding:12px;
-}
-
-/* CARD */
-.card{
-background:#fff;
-border-radius:16px;
-padding:15px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-position:relative;
-overflow:hidden;
-}
-
-/* LEFT COLOR BORDER */
-.card::before{
-content:"";
-position:absolute;
-left:0;
-top:0;
-height:100%;
-width:5px;
-background:#ff6f00;
-border-radius:10px 0 0 10px;
-}
-
-/* VALUE */
-.big{
-font-size:20px;
-font-weight:bold;
-color:#ff6f00;
-margin-top:8px;
-}
-
-/* GREEN CARD */
-.green::before{background:#2e7d32;}
-.green .big{color:#2e7d32;}
-
-/* INPUT */
-input,select{
-width:100%;
-padding:8px;
-margin:6px 0;
-border-radius:10px;
-border:1px solid #ddd;
-}
-
-/* BUTTON */
-button{
-background:#ff6f00;
-color:#fff;
-border:none;
-padding:8px;
-border-radius:8px;
-margin-top:5px;
-}
-  /* 🔥 LOADER CSS START */
-#loader{
-position:fixed;
-top:0;
-left:0;
-width:100vw;
-height:100vh;
-
-/* 🔥 PURE BHAGWA GRADIENT */
-background:linear-gradient(135deg,#ff9933,#ff5722);
-
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-
-z-index:999999;
-overflow:hidden;
-}
-#loader::before{
-content:"";
-position:absolute;
-width:100%;
-height:100%;
-background:radial-gradient(circle at center, rgba(255,255,255,0.1), transparent 70%);
-}
-/* 🔥 BACKGROUND BLUR */
-.bg{
-position:absolute;
-width:100%;
-height:100%;
-background:url('images/header.jpg') no-repeat center/cover;
-filter:blur(8px) brightness(0.6);
-}
-
-/* 🔥 FLAG IMAGE */
-.loader-img{
-width:260px;
-z-index:2;
-
-/* 🌬️ smooth float */
-animation:float 3s ease-in-out infinite;
-
-/* glow */
-filter:drop-shadow(0 0 25px orange);
-}
-
-@keyframes float{
-0%{transform:translateY(0);}
-50%{transform:translateY(-12px);}
-100%{transform:translateY(0);}
-}
-
-/* TEXT */
-.text{
-font-size:22px;
-font-weight:bold;
-color:#fff;
-letter-spacing:2px;
-
-/* 🔥 glow */
-text-shadow:
-0 0 10px #fff,
-0 0 20px #ffcc80,
-0 0 30px #ff9800;
-  
-/* 🔥 LOADER CSS END */
-                           
+:root{--saffron:#ff6f00;--deep:#e65100;--bg:#fff5ec;--green:#2e7d32;--red:#c62828}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:#292929}
+.header{width:100%;background:#fff}.header-img{width:100%;height:auto;display:block}
+.tabs{display:flex;background:var(--saffron);overflow-x:auto;position:sticky;top:0;z-index:20;scrollbar-width:thin}
+.tabs div{padding:12px 14px;color:white;font-size:14px;cursor:pointer;white-space:nowrap}
+.tabs div.active{background:white;color:var(--saffron);border-radius:10px 10px 0 0;font-weight:700}
+#app{padding:12px;max-width:1100px;margin:auto}
+.title{padding:8px 0 14px;font-weight:bold;color:#444;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{background:white;border-radius:14px;padding:14px;box-shadow:0 3px 10px #00000012;position:relative;overflow:hidden;margin:8px 0}
+.card:before{content:"";position:absolute;left:0;top:0;height:100%;width:4px;background:var(--saffron)}
+.card.dashboard-link{cursor:pointer;transition:transform .15s}.card.dashboard-link:active{transform:scale(.98)}.card.dashboard-link:focus{outline:2px solid var(--saffron)}
+.big{font-size:21px;font-weight:800;color:var(--saffron);margin-top:7px;overflow-wrap:anywhere}
+.green .big{color:var(--green)} .red .big{color:var(--red)}
+input,select,textarea{width:100%;padding:10px;margin:5px 0 10px;border-radius:9px;border:1px solid #ddd;background:#fff;font:inherit}
+button{background:var(--saffron);color:white;border:0;padding:10px 13px;border-radius:9px;margin:4px 4px 4px 0;font-weight:650;cursor:pointer}
+button.secondary{background:#555}button.danger{background:var(--red)}button:disabled{opacity:.5}
+label{display:block;font-weight:650;margin-top:6px;font-size:14px}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+table{width:100%;border-collapse:collapse;background:white;margin:8px 0;font-size:14px}
+th,td{border:1px solid #eee;padding:8px;text-align:left;vertical-align:middle}
+th{background:#fff0e2}
+.table-wrap{overflow:auto}
+small,.muted{color:#666}.notice{padding:10px 12px;background:#fff0d8;border-radius:10px;margin:8px 0;font-size:13px}
+.pill{display:inline-block;border-radius:20px;padding:4px 9px;background:#fff0d8;font-size:12px}
+.empty{padding:16px;background:white;border-radius:10px;color:#666}
+#loader{position:fixed;inset:0;background:linear-gradient(135deg,#ff9933,#ff5722);display:flex;align-items:center;justify-content:center;z-index:999999}
+#loader img{width:min(260px,65vw);filter:drop-shadow(0 0 25px orange);animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-12px)}}
+@media(min-width:700px){.cards{grid-template-columns:repeat(4,minmax(0,1fr))}#app{padding:20px}.tabs div{padding:14px 18px}}
 </style>
 </head>
-
 <body>
-
-<!-- LOADER -->
-<div id="loader">
-  <div class="bg"></div>
-  <img src="https://i.ibb.co/7Ny3fJTk/1000193664-removebg-preview.png" class="loader-img">
-</div>
-
-<!-- HEADER -->
-<div class="header">
-  <img src="https://i.ibb.co/60VBLD0J/1000195482-modified.png" class="header-img">
-</div>
-
-<!-- TABS -->
-<div class="tabs">
-  <div onclick="page(event,'dashboard')" class="active">🏠 Dashboard</div>
-  <div onclick="page(event,'members')">👨🏻‍💼 Members</div>
-  <div onclick="page(event,'monthly')">📅 Monthly</div>
-  <div onclick="page(event,'utsav')">🎊 Utsav</div>
-  <div onclick="page(event,'interest')">💰 ब्याज रजिस्टर</div>
-  <div onclick="page(event,'income')">📥 Income</div>
-  <div onclick="page(event,'expense')">📤 Expense</div>
-  <div onclick="page(event,'settings')">⚙️ Settings</div>
-</div>
-
-<!-- MAIN -->
-<div id="app"></div>
-
-</body>
-
+<div id="loader"><img src="https://i.ibb.co/7Ny3fJTk/1000193664-removebg-preview.png" alt="Loading"></div>
+<div class="header"><img src="https://i.ibb.co/60VBLD0J/1000195482-modified.png" class="header-img" alt="Jai Shree Ram Navyuvak Samiti"></div>
+<nav class="tabs">
+<div data-page="dashboard" class="active" onclick="page('dashboard',this)">🏠 Dashboard</div>
+<div data-page="members" onclick="page('members',this)">👨🏻‍💼 Members</div>
+<div data-page="monthly" onclick="page('monthly',this)">📅 Monthly</div>
+<div data-page="utsav" onclick="page('utsav',this)">🎊 Utsav</div>
+<div data-page="interest" onclick="page('interest',this)">💰 ब्याज रजिस्टर</div>
+<div data-page="income" onclick="page('income',this)">📥 Income</div>
+<div data-page="expense" onclick="page('expense',this)">📤 Expense</div>
+<div data-page="settings" onclick="page('settings',this)">⚙️ Settings</div>
+</nav>
+<main id="app"></main>
 <script>
-
-let db;
-let role="viewer";
-let app;
-let isAdmin = false;
+"use strict";
+let db, app;
+let role = "viewer";
 let year = new Date().getFullYear();
-  
-let passwords={
-admin:"123",
-adhyaksha:"111",
-upadhyaksha:"222",
-member:"333"
-};
-
-let approvals={adhyaksha:false,upadhyaksha:false,member:false};
-
-const months=["Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-const utsavList=[
-"Hanuman Janmotsav",
-"Navratri",
-"Ganesh Chaturthi",
-"Laxmi Utsav"
-];
-  
-function updateYear(){
-  year = new Date().getFullYear();
-}
-// INIT
-document.addEventListener("DOMContentLoaded",()=>{
-app = document.getElementById("app");
-firebase.initializeApp({
-apiKey:"AIzaSyCkeJUlGX7Rd42uPkDJkLqaxvHLlrvezUg",
-databaseURL:"https://samiti-app5-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
-
-db=firebase.database();
-
-  db.ref("data/"+year).once("value",snap=>{
-if(!snap.exists()){
-  db.ref("data/"+year).set({
-    monthly:{},
-    utsav:{},
-    income:{},
-    expense:{}
+let passwords = {admin:"123",adhyaksha:"111",upadhyaksha:"222",member:"333"};
+let approvals = {adhyaksha:false,upadhyaksha:false,member:false};
+let activePage = "dashboard";
+const months = ["Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"];
+const utsavList = ["Hanuman Janmotsav","Navratri","Ganesh Chaturthi","Laxmi Utsav"];
+const money = n => "₹" + (Number(n)||0).toLocaleString("en-IN",{maximumFractionDigits:2});
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const yearRef = () => db.ref("data/"+year);
+const path = p => db.ref("data/"+year+"/"+p);
+const isAdmin = () => role === "admin";
+function init(){
+  app=document.getElementById("app");
+  try{
+    firebase.initializeApp({
+      apiKey:"AIzaSyCkeJUlGX7Rd42uPkDJkLqaxvHLlrvezUg",
+      databaseURL:"https://samiti-app5-default-rtdb.asia-southeast1.firebasedatabase.app"
+    });
+    db=firebase.database();
+  }catch(e){console.error(e)}
+  if(!db){app.innerHTML='<div class="notice">Firebase initialize नहीं हो पाया। इंटरनेट और Firebase configuration जाँचें।</div>';hideLoader();return}
+  yearRef().once("value").then(s=>{
+    if(!s.exists()) return yearRef().set({monthly:{},utsav:{},income:{},expense:{},utsavLoans:{}});
+  }).catch(console.error).finally(()=>{
+    db.ref("settings/passwords").once("value").then(s=>{if(s.val())passwords={...passwords,...s.val()}}).catch(console.error);
+    db.ref("settings/approvals").on("value",s=>{approvals={...approvals,...(s.val()||{})}});
+    hideLoader();
+    dashboard();
+    setInterval(()=>{const now=new Date().getFullYear();if(now!==year){year=now;page("dashboard")}},60000);
   });
 }
-});
-  /* 🔥 ADD THIS (year update) */
-updateYear();
-
-/* 🔥 AUTO YEAR CHANGE */
-setInterval(()=>{
-let current = new Date().getFullYear();
-
-if(current != year){
-year = current;
-page("dashboard");
+function hideLoader(){const el=document.getElementById("loader");if(el)el.style.display="none"}
+function page(p,el){
+  activePage=p;
+  document.querySelectorAll(".tabs div").forEach(t=>t.classList.toggle("active",t.dataset.page===p));
+  const fn={dashboard,members,monthly,utsav,interest,income,expense,settings}[p];
+  if(fn)fn();
 }
-
-},60000);
-  
-  // 🔥 LOADER HIDE AFTER DATA LOAD
-db.ref().once("value",()=>{
-document.getElementById("loader").style.display="none";
-});
-
-// load passwords
-db.ref("settings/passwords").once("value",s=>{
-if(s.val()) passwords=s.val();
-});
-
-// load approvals
-db.ref("settings/approvals").on("value",s=>{
-approvals=s.val()||approvals;
-});
-
-// 🔥 AUTO FIX OLD DATA
-fixOldData();
-
-dashboard();
-
-});
-
-// 🔧 AUTO DATA FIX
-function fixOldData(){
-
-["income","expense","monthly","utsav"].forEach(path=>{
-db.ref("data/"+year+"/"+path).once("value",snap=>{
-let data=snap.val()||{};
-Object.keys(data).forEach(k=>{
-if(data[k].locked===undefined){
-db.ref("data/"+year+"/"+path+"/"+k+"/locked").set(false);
+function sumAmounts(obj){return Object.values(obj||{}).reduce((s,v)=>s+(Number(v?.a)||0),0)}
+function penalty(date){if(!date)return 0;const d=new Date(date+"T12:00:00");return d.getDate()>1?(d.getDate()-1)*10:0}
+async function readYear(){const s=await yearRef().once("value");return s.val()||{}}
+async function getOpening(){const s=await db.ref("settings/open").once("value");return Number(s.val())||0}
+async function festivalLedger(d,festival){
+  const collections=Object.entries(d.utsav||{}).reduce((s,[k,v])=>s+(k.endsWith("_"+festival)?Number(v?.a)||0:0),0);
+  const expenses=Object.values(d.expense||{}).reduce((s,v)=>s+(v.festival===festival?(Number(v.a)||0):0),0);
+  const otherIncome=Object.values(d.income||{}).reduce((s,v)=>s+(v.festival===festival?(Number(v.a)||0):0),0);
+  const loans=Object.values(d.utsavLoans||{}).filter(v=>v.festival===festival);
+  const lent=loans.reduce((s,v)=>s+(v.status==="returned"?0:Number(v.principal)||0),0);
+  return {collections,expenses,otherIncome,loans,lent,balance:collections+otherIncome-expenses-lent};
 }
-});
-});
-});
-  
+async function dashboard(){
+  app.innerHTML=`<div class="title">📊 Dashboard <select id="yearSelect" style="max-width:130px" onchange="changeYear(this.value)"></select>
+  <button onclick="downloadPDF()">📄 PDF</button><button onclick="backupData()">💾 Backup</button><button onclick="installApp()">📲 Install</button></div><div id="dashNotice" class="notice">हिसाब लोड हो रहा है...</div><div class="cards" id="out"></div><h3>🎊 उत्सववार शेष राशि</h3><div id="festivalBalances" class="cards"></div>`;
+  loadYears();
+  try{
+    const [d,open]=await Promise.all([readYear(),getOpening()]);
+    const monthly=sumAmounts(d.monthly), utsav=sumAmounts(d.utsav), inc=sumAmounts(d.income), exp=sumAmounts(d.expense);
+    const pen=Object.values(d.monthly||{}).reduce((s,v)=>s+penalty(v.d),0);
+    const loans=Object.values(d.utsavLoans||{});
+    const pendingPrincipal=loans.filter(v=>v.status!=="returned").reduce((s,v)=>s+(Number(v.principal)||0),0);
+    const interestReceived=loans.reduce((s,v)=>s+(Number(v.interestReceived)||0),0);
+    const cash=open+monthly+pen+utsav+inc-exp-pendingPrincipal+interestReceived;
+    document.getElementById("dashNotice").textContent="वर्ष "+year+" का वित्तीय सारांश";
+    document.getElementById("out").innerHTML=[
+      ["💰 Opening",open],["🗓️ Monthly",monthly],["🧾 Penalty",pen],["🎊 Utsav",utsav],
+      ["📥 Other Income",inc],["📤 Expense",exp],["🤝 उधार मूलधन बाकी",pendingPrincipal],
+      ["💹 ब्याज प्राप्त",interestReceived],["🏦 उपलब्ध नकद",cash]
+     ].map(([t,n])=>{const dest=t.includes("Monthly")||t.includes("Penalty")?"monthly":t.includes("Utsav")?"utsav":t.includes("Expense")?"expense":t.includes("Income")?"income":t.includes("उधार")||t.includes("ब्याज")?"interest":t.includes("Opening")?"settings":null;return `<div class="card dashboard-link" ${dest?`onclick="page('${dest}')" role="button" tabindex="0"`:""}><div>${t}</div><div class="big">${money(n)}</div>${dest?"<small>देखने के लिए टच करें ↗</small>":""}</div>`}).join("");
+    const balances=await Promise.all(utsavList.map(async f=>[f,await festivalLedger(d,f)]));
+    document.getElementById("festivalBalances").innerHTML=balances.map(([f,x])=>`<div class="card dashboard-link" role="button" tabindex="0" onclick="page('utsav')"><b>${esc(f)}</b><div class="big">${money(x.balance)}</div><small>चंदा ${money(x.collections)} · खर्च ${money(x.expenses)} · उधार बाकी ${money(x.lent)}</small><small>उत्सव पेज खोलें ↗</small></div>`).join("");
+  }catch(e){console.error(e);document.getElementById("dashNotice").textContent="डेटा लोड नहीं हुआ: "+e.message}
 }
-
-function migrateOldData(){
-
-const paths = ["monthly","income","expense","utsav"];
-
-paths.forEach(p=>{
-db.ref(p).once("value",snap=>{
-let data = snap.val();
-
-if(data && Object.keys(data).length > 0){
-
-/* 🔥 merge instead of overwrite */
-db.ref("data/"+year+"/"+p).update(data);
-
-console.log(p + " migrated");
-
-}else{
-console.log(p + " empty");
+async function loadYears(){
+ const sel=document.getElementById("yearSelect");if(!sel)return;
+ try{const s=await db.ref("data").once("value");const ys=Object.keys(s.val()||{}).filter(k=>/^\d{4}$/.test(k));if(!ys.includes(String(year)))ys.push(String(year));ys.sort();sel.innerHTML=ys.map(y=>`<option value="${y}" ${Number(y)===year?"selected":""}>${y}</option>`).join("")}catch(e){sel.innerHTML=`<option>${year}</option>`}
 }
-
-});
-});
-
-alert("Migration Done");
-
+function changeYear(v){year=Number(v)||new Date().getFullYear();page(activePage)}
+async function members(){
+ app.innerHTML=`<h3>👨🏻‍💼 सदस्य प्रबंधन</h3><div class="card"><label>सदस्य का नाम</label><input id="memberName" placeholder="नाम"><label>पद</label><input id="memberPost" placeholder="पद"><button onclick="addMember()">सदस्य जोड़ें</button></div><h3>सदस्य सूची</h3><div id="memberList">लोड हो रहा है...</div>`;
+ try{const s=await db.ref("members").once("value");const data=s.val()||{};const list=document.getElementById("memberList");
+ if(!Object.keys(data).length){list.innerHTML='<div class="empty">अभी सदस्य नहीं हैं।</div>';return}
+ list.innerHTML=Object.entries(data).map(([id,v],i)=>`<div class="card"><b>${i+1}. ${esc(v.name)}</b><div class="row"><input id="mn_${id}" value="${esc(v.name)}" aria-label="नाम"><input id="mp_${id}" value="${esc(v.post||"")}" aria-label="पद"></div><button onclick="updateMember('${id}')">अपडेट</button><button class="danger" onclick="deleteMember('${id}')">हटाएँ</button></div>`).join("");
+ }catch(e){document.getElementById("memberList").textContent="लोड नहीं हुआ: "+e.message}
 }
-// 🔄 RESET APPROVAL
-function resetApproval(){
-db.ref("settings/approvals").set({
-adhyaksha:false,
-upadhyaksha:false,
-member:false
-});
-}
-
-// 🔒 EDIT CONTROL
-function canEdit(v){
-
-// 🔥 अगर data ही empty है → हमेशा editable
-if(!v || (!v.a && !v.d)){
-  return true;
-}
-
-// सिर्फ admin edit करेगा
-if(!isAdmin) return false;
-
-// 🔥 अगर locked field ही नहीं है → NEW DATA
-if(v?.locked === undefined) return true;
-
-// 🔥 अगर unlocked है
-if(v.locked === false) return true;
-
-// 🔒 locked → approval चाहिए
-if(
-v.locked === true &&
-approvals.adhyaksha &&
-approvals.upadhyaksha &&
-approvals.member
-){
-return true;
-}
-
-return false;
-
-}
-
-// PENALTY
-function penalty(d){
-if(!d)return 0;
-let day=new Date(d).getDate();
-return day>1?(day-1)*10:0;
-}
-
-// DASHBOARD
-function dashboard(){
-
-app.innerHTML = `
-<div class="title">
-📊 Dashboard 
-
-<select id="yearSelect" onchange="changeYear()"></select>
-
-<button onclick="downloadPDF()">📄 PDF</button>
-<button onclick="backupData()">💾 Backup</button>
-
-<!-- ✅ YAH ADD KARO -->
-<button onclick="installApp()">📲 Install</button>
-
-</div>
-<div class="cards" id="out"></div>
-`;
-
-loadYears();      
-
-// 🔥 IMPORTANT: yahi hona chahiye
-db.ref("data/"+year).on("value",s=>{
-let d=s.val()||{};
-let sum=o=>Object.values(o||{}).reduce((a,b)=>a+(b.a||0),0);
-
-let monthly=sum(d.monthly);
-let utsav=sum(d.utsav);
-let income=sum(d.income);
-let expense=sum(d.expense);
-const loans = Object.values(d.utsavLoans || {});
-
-const pendingPrincipal = loans
-  .filter(v => v.status !== "returned")
-  .reduce((total, v) => total + (+v.principal || 0), 0);
-
-const interestReceived = loans
-  .reduce((total, v) => total + (+v.interestReceived || 0), 0);
-
-const interestPending = loans
-  .filter(v => v.status !== "returned")
-  .reduce((total, v) => total + (+v.interest || 0), 0);
-
-let pen=0;
-Object.values(d.monthly||{}).forEach(v=>pen+=penalty(v.d));
-
-let open=d.settings?.open||0;
-
-out.innerHTML=`
-<div class='card'>💰 Opening<br><div class='big'>₹${open}</div></div>
-<div class='card'>🗓️ Monthly<br><div class='big'>₹${monthly}</div></div>
-<div class='card'>🧾 Penalty<br><div class='big'>₹${pen}</div></div>
-<div class='card'>🎊 Utsav<br><div class='big'>₹${utsav}</div></div>
-<div class='card'>📥 Income<br><div class='big'>₹${income}</div></div>
-<div class='card'>📤 Expense<br><div class='big'>₹${expense}</div></div>
-<div class='card'>💰 ब्याज बाकी<br>
-  <div class='big'>₹${interestPending}</div>
-</div>
-
-<div class='card'>📥 ब्याज प्राप्त<br>
-  <div class='big'>₹${interestReceived}</div>
-</div>
-
-<div class='card'>🤝 उधार दिया मूलधन<br>
-  <div class='big'>₹${pendingPrincipal}</div>
-</div>
-
-<div class='card'>🏦 उपलब्ध नकद<br>
-  <div class='big'>₹${open+monthly+pen+utsav+income-expense-pendingPrincipal+interestReceived}</div>
-</div>
-
-function loadYears(){
-
-let select = document.getElementById("yearSelect");
-
-db.ref("data").once("value",snap=>{
-let years = snap.val();
-
-if(!years){
-  // 🔥 agar kuch bhi data nahi hai
-  select.innerHTML = `<option>${year}</option>`;
-  return;
-}
-
-let keys = Object.keys(years);
-
-// 🔥 current year add karo agar missing hai
-if(!keys.includes(String(year))){
-  keys.push(String(year));
-}
-
-select.innerHTML = keys.map(y=>`
-<option ${y==year?"selected":""}>${y}</option>
-`).join("");
-
-});
-
-}
-
-function changeYear(){
-year = document.getElementById("yearSelect").value;
-dashboard();
-}
-
-// MEMBERS
-function members(){
-
-app.innerHTML=`
-<h3>Add Member</h3>
-<input id="name" placeholder="Member Name">
-<input id="post" placeholder="Post">
-<button onclick="addMember()">Add Member</button>
-
-<h3>Members List</h3>
-<ul id="list"></ul>
-`;
-
-db.ref("members").on("value",s=>{
-let data=s.val()||{};
-
-list.innerHTML = Object.entries(data).map(([k,v],i)=>`
-<li>
-<b>${i+1}.</b>
-
-<input value="${v.name}" 
-onchange="updateMember('${k}','name',this.value)">
-
-<input value="${v.post}" 
-onchange="updateMember('${k}','post',this.value)">
-
-<button onclick="deleteMember('${k}')">❌</button>
-</li>
-`).join("");
-
-});
-
-}
-function addMember(){
-  
-if(role !== "admin"){
-return alert("Only admin can add member");
-}
-
-const nameInput = document.getElementById("name");
-const postInput = document.getElementById("post");
-
-const n = nameInput.value.trim();
-const p = postInput.value.trim();
-
-if(!n) return alert("Name required");
-
-db.ref("members").push({
-name:n,
-post:p
-});
-
-/* 🔥 only name clear */
-nameInput.value = "";
-nameInput.focus();
-/* ❌ post ko mat chhedo */
-}
-
-
-function updateMember(id,field,value){
-
-if(role!=="admin"){
-return alert("Only admin can edit");
-}
-
-db.ref("members/"+id).update({
-[field]:value
-});
-
-}
-  
-function deleteMember(id){
-
-if(role!=="admin"){
-return alert("Only admin can delete");
-}
-
-if(!confirm("Delete member?")) return;
-
-db.ref("members/"+id).remove();
-
-  }
-
-// MONTHLY
+async function addMember(){if(!isAdmin())return alert("केवल Admin सदस्य जोड़ सकता है");const n=document.getElementById("memberName").value.trim(),p=document.getElementById("memberPost").value.trim();if(!n)return alert("नाम लिखें");try{await db.ref("members").push({name:n,post:p});members()}catch(e){alert(e.message)}}
+async function updateMember(id){if(!isAdmin())return alert("केवल Admin अपडेट कर सकता है");const name=document.getElementById("mn_"+id).value.trim(),post=document.getElementById("mp_"+id).value.trim();if(!name)return alert("नाम खाली नहीं हो सकता");try{await db.ref("members/"+id).update({name,post});alert("सदस्य अपडेट हुआ")}catch(e){alert(e.message)}}
+async function deleteMember(id){if(!isAdmin())return alert("केवल Admin हटा सकता है");if(!confirm("क्या इस सदस्य को हटाना है? पुराने भुगतान रिकॉर्ड बने रहेंगे।"))return;try{await db.ref("members/"+id).remove();members()}catch(e){alert(e.message)}}
 function monthly(){
-app.innerHTML=`
-<select id="month" onchange="loadMonthly()">
-${months.map(m=>`<option>${m}</option>`)}
-</select>
-<div id="list"></div>
-`;
-loadMonthly();
+ app.innerHTML=`<h3>📅 मासिक भुगतान</h3><label>महीना</label><select id="month" onchange="loadMonthly()">${months.map(m=>`<option>${m}</option>`).join("")}</select><div id="monthlyList"></div>`;
+ loadMonthly();
 }
-
-function loadMonthly(){
-db.ref("members").once("value",m=>{
-let mem=m.val()||{};
-db.ref("data/"+year+"/monthly").on("value",s=>{
-let data=s.val()||{};
-let mth=month.value;
-
-list.innerHTML = Object.entries(mem).map(([id,v],i)=>{
-let key = id+"_"+mth;
-let val = data[key]||{};
-
-return `
-<div>
-<b>${i+1}.</b> ${v.name}
-
-<input value="${val.a||""}" 
-onchange="save('${key}','a',this.value)">
-
-<input type="date" value="${val.d||""}" 
-onchange="save('${key}','d',this.value)">
-
-Penalty ₹${penalty(val.d)}
-</div>
-`;
-}).join("");
-});
-});
+async function loadMonthly(){
+ const list=document.getElementById("monthlyList");if(!list)return;
+ try{const [ms,ds]=await Promise.all([db.ref("members").once("value"),path("monthly").once("value")]);const mem=ms.val()||{},data=ds.val()||{},mth=document.getElementById("month").value;
+ list.innerHTML=Object.entries(mem).map(([id,v],i)=>{const k=id+"_"+mth,val=data[k]||{};return `<div class="card"><b>${i+1}. ${esc(v.name)}</b><div class="row"><div><label>राशि ₹</label><input type="number" min="0" id="ma_${id}" value="${val.a??""}"></div><div><label>भुगतान तारीख</label><input type="date" id="md_${id}" value="${esc(val.d||"")}"></div></div><small>जुर्माना: ${money(penalty(val.d))}</small><br><button onclick="saveMonthly('${k}','${id}')">सेव</button></div>`}).join("")||'<div class="empty">पहले सदस्य जोड़ें।</div>';
+ }catch(e){list.textContent=e.message}
 }
-
-function save(k,t,v){
-// 🔒 ADMIN CHECK (सबसे ऊपर)
-if(role !== "admin"){
-  return alert("Only admin can edit");
+async function saveMonthly(key,id){if(!isAdmin())return alert("केवल Admin सेव कर सकता है");const a=document.getElementById("ma_"+id).value,d=document.getElementById("md_"+id).value;if(a!==""&&(!Number.isFinite(Number(a))||Number(a)<0))return alert("राशि सही भरें");try{const old=(await path("monthly/"+key).once("value")).val()||{};if(!canEdit(old))return alert("Locked record: approval आवश्यक");await path("monthly/"+key).update({a:a===""?"":Number(a),d,locked:false});resetApproval();loadMonthly()}catch(e){alert(e.message)}}
+function canEdit(v){if(!v||((!v.a)&&(!v.d)))return true;if(!isAdmin())return false;if(v.locked===undefined||v.locked===false)return true;return v.locked===true&&approvals.adhyaksha&&approvals.upadhyaksha&&approvals.member}
+function resetApproval(){db.ref("settings/approvals").set({adhyaksha:false,upadhyaksha:false,member:false})}
+function utsav(){
+ app.innerHTML=`<h3>🎊 उत्सव चंदा</h3><label>उत्सव चुनें</label><select id="festival" onchange="loadUtsav()">${utsavList.map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join("")}</select><div id="utsavList"></div><button onclick="saveAllUtsav()">💾 सभी भुगतान सेव करें</button>`;
+ loadUtsav();
 }
-  
-db.ref("data/"+year+"/monthly/"+k).once("value",snap=>{
-let val = snap.val() || {};
-
-// 🔥 अगर empty हो रहा है → unlock
-if((t==="a" && !v) && !val.d){
-  db.ref("data/"+year+"/monthly/"+k).set({
-    a:"",
-    d:"",
-    locked:false
-  });
-  return;
+async function loadUtsav(){
+ const list=document.getElementById("utsavList");if(!list)return;
+ const f=document.getElementById("festival").value;
+ try{const [ms,us]=await Promise.all([db.ref("members").once("value"),path("utsav").once("value")]);const mem=ms.val()||{},data=us.val()||{};
+ list.innerHTML=Object.entries(mem).map(([id,m],i)=>{const key=id+"_"+f,val=data[key]||{};return `<div class="card"><b>${i+1}. ${esc(m.name)}</b><label>राशि ₹</label><input type="number" min="0" class="utsav-amount" data-key="${key}" value="${val.a??""}" placeholder="चंदा राशि"></div>`}).join("")||'<div class="empty">पहले सदस्य जोड़ें।</div>';
+ }catch(e){list.textContent=e.message}
 }
-
-if((t==="d" && !v) && !val.a){
-  db.ref("data/"+year+"/monthly/"+k).set({
-    a:"",
-    d:"",
-    locked:false
-  });
-  return;
+async function saveAllUtsav(){
+ if(!isAdmin())return alert("केवल Admin सेव कर सकता है");
+ const inputs=[...document.querySelectorAll(".utsav-amount")],updates={},old=(await path("utsav").once("value")).val()||{};
+ for(const input of inputs){const val=input.value.trim();if(val==="")continue;const n=Number(val);if(!Number.isFinite(n)||n<0)return alert("राशि सही भरें");const k=input.dataset.key;if(!canEdit(old[k]||{}))return alert("Locked record - approval required: "+k);updates[k]={a:n,locked:false}}
+ if(!Object.keys(updates).length)return alert("पहले राशि भरें");
+ const flat={};Object.entries(updates).forEach(([k,v])=>{flat[k+"/a"]=v.a;flat[k+"/locked"]=false});
+ try{await path("utsav").update(flat);resetApproval();alert("सभी भुगतान सेव हो गए");loadUtsav()}catch(e){alert("सेव नहीं हुआ: "+e.message)}
 }
-
-// normal edit check
-if(!canEdit(val)){
-  return alert("Locked data - approval required");
+function interest(){
+ app.innerHTML=`<h3>💰 उत्सव ब्याज रजिस्टर</h3><div class="notice">नियम: ₹1,000 पर ₹300 सालाना यानी 30% साधारण वार्षिक ब्याज। पूरे एक साल बाद मूलधन और ब्याज एक साथ दर्ज होंगे। उधार देने से पहले उत्सव की उपलब्ध शेष राशि जाँचें।</div>
+ <div class="card"><label>उत्सव</label><select id="loanFestival">${utsavList.map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join("")}</select><div id="availableBalance" class="pill"></div>
+ <label>पैसे लेने वाले का नाम</label><input id="borrower" placeholder="पूरा नाम"><label>मोबाइल नंबर</label><input id="borrowerPhone" type="tel" placeholder="मोबाइल नंबर"><label>मूलधन ₹</label><input id="principal" type="number" min="1" step="0.01" placeholder="जैसे 5000"><label>पैसे देने की तारीख</label><input id="loanDate" type="date"><div id="loanPreview" class="notice"></div><button onclick="saveLoan()">💾 उधार रिकॉर्ड सेव करें</button></div>
+ <h3>📋 उधार रिकॉर्ड</h3><div id="loanList">लोड हो रहा है...</div>`;
+ document.getElementById("loanDate").value=new Date().toISOString().slice(0,10);
+ document.getElementById("principal").addEventListener("input",updateLoanPreview);
+ document.getElementById("loanDate").addEventListener("change",updateLoanPreview);
+ document.getElementById("loanFestival").addEventListener("change",updateAvailableBalance);
+ updateLoanPreview();updateAvailableBalance();loadLoans();
 }
-
-db.ref("data/"+year+"/monthly/"+k).update({
-[t]:t==="a"?+v:v
-});
-
-resetApproval();
-
-});
+function calculateLoan(principal,date){
+ const amount=Number(principal),start=new Date(date+"T12:00:00"),due=new Date(start);due.setFullYear(due.getFullYear()+1);
+ const interest=Math.round(amount*0.30*100)/100;
+ return {interest,total:Math.round((amount+interest)*100)/100,dueDate:[due.getFullYear(),String(due.getMonth()+1).padStart(2,"0"),String(due.getDate()).padStart(2,"0")].join("-")};
 }
-// UTSAV
-
-function utsav() {
-  app.innerHTML = `
-    <h3>🎊 Utsav Collection</h3>
-
-    <select id="festival" onchange="loadUtsav()">
-      ${utsavList.map(f =>
-        `<option value="${f}">${f}</option>`
-      ).join("")}
-    </select>
-
-    <div id="list"></div>
-    <button onclick="saveAllUtsav()">💾 Save All Payments</button>
-  `;
-
-  loadUtsav();
+function updateLoanPreview(){
+ const p=Number(document.getElementById("principal")?.value),date=document.getElementById("loanDate")?.value,el=document.getElementById("loanPreview");if(!el)return;
+ if(!(p>0)||!date){el.textContent="रकम और तारीख भरने पर ब्याज का हिसाब दिखेगा।";return}
+ const c=calculateLoan(p,date);el.textContent=`एक साल का ब्याज: ${money(c.interest)} | कुल वापसी: ${money(c.total)} | नियत तारीख: ${c.dueDate}`;
 }
-
-function loadUtsav() {
-  const festival = document.getElementById("festival").value;
-  const listEl = document.getElementById("list");
-
-  listEl.innerHTML = "Loading...";
-
-  Promise.all([
-    db.ref("members").once("value"),
-    db.ref("data/" + year + "/utsav").once("value")
-  ]).then(([ms, us]) => {
-    const members = ms.val() || {};
-    const data = us.val() || {};
-
-    listEl.innerHTML = Object.entries(members).map(([id, m], i) => {
-      const key = id + "_" + festival;
-      const val = data[key] || {};
-
-      return `
-        <div class="card">
-          <b>${i + 1}. ${m.name || ""}</b>
-          <input
-            type="number"
-            min="0"
-            step="1"
-            class="utsav-amount"
-            data-key="${key}"
-            value="${val.a ?? ""}"
-            placeholder="Payment amount"
-          >
-        </div>
-      `;
-    }).join("");
-
-  }).catch(err => {
-    listEl.innerHTML = "Error: " + err.message;
-  });
+async function updateAvailableBalance(){
+ const el=document.getElementById("availableBalance");if(!el)return;
+ try{const d=await readYear(),f=document.getElementById("loanFestival").value,l=await festivalLedger(d,f);el.textContent=`इस उत्सव की अनुमानित उपलब्ध शेष राशि: ${money(l.balance)}`}catch(e){el.textContent="शेष राशि लोड नहीं हुई"}
 }
-
-async function saveAllUtsav() {
-  if (role !== "admin") {
-    alert("Only admin can save payments");
-    return;
-  }
-
-  const inputs = document.querySelectorAll(".utsav-amount");
-  const updates = {};
-  const ref = db.ref("data/" + year + "/utsav");
-
-  for (const input of inputs) {
-    const key = input.dataset.key;
-    const value = input.value.trim();
-
-    if (value === "") continue;
-
-    const amount = Number(value);
-
-    if (!Number.isFinite(amount) || amount < 0) {
-      alert("Sahi amount enter karo");
-      return;
-    }
-
-    updates[key] = {
-      a: amount,
-      locked: false
-    };
-  }
-
-  if (Object.keys(updates).length === 0) {
-    alert("Pehle payment amount bharo");
-    return;
-  }
-
-  try {
-    const snap = await ref.once("value");
-    const oldData = snap.val() || {};
-
-    for (const key of Object.keys(updates)) {
-      if (!canEdit(oldData[key] || {})) {
-        alert("Locked data - approval required: " + key);
-        return;
-      }
-    }
-
-    const flatUpdates = {};
-
-    for (const [key, value] of Object.entries(updates)) {
-      flatUpdates[key + "/a"] = value.a;
-      flatUpdates[key + "/locked"] = false;
-    }
-
-    await ref.update(flatUpdates);
-    resetApproval();
-
-    alert("✅ Sabhi payments save ho gaye!");
-    loadUtsav();
-
-  } catch (err) {
-    alert("Save failed: " + err.message);
-  }
-}
-
-
-function saveU(k,v){
-  // 🔒 ADMIN CHECK
-if(role !== "admin"){
-  return alert("Only admin can edit");
-}
-db.ref("data/"+year+"/utsav/"+k).once("value",snap=>{
-let val=snap.val()||{};
-
-  // 🔥 empty → unlock
-if(!v){
-  db.ref("data/"+year+"/utsav/"+k).set({
-    a:"",
-    locked:false
-  });
-  return;
-}
-
-if(!canEdit(val)){
-return alert("Locked data - approval required");
-}
-
-db.ref("data/"+year+"/utsav/"+k).update({
-a:+v
-});
-
-resetApproval();
-
-});
-}
-
-// DELETE
-function del(id,path){
-db.ref("data/"+year+"/"+path+"/"+id).once("value",snap=>{
-let val=snap.val()||{};
-
-if(!canEdit(val)){
-return alert("Locked data - approval required");
-}
-
-db.ref("data/"+year+"/"+path+"/"+id).remove();
-resetApproval();
-});
-}
-
-// INCOME
-function income(){
-app.innerHTML=`
-<input id="d" placeholder="Description"><input id="a">
-<button onclick="addInc()">Add</button>
-<ul id="list"></ul>
-`;
-
-db.ref("data/"+year+"/income").on("value",s=>{
-list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
-`<li>${v.d} ₹${v.a}
-<button onclick="del('${k}','income')">❌</button>
-</li>`
-).join("");
-});
-}
-
-function addInc(){
-
-if(role !== "admin"){
-  return alert("❌ Only admin allowed");
-}
-
-const desc = document.getElementById("d").value;
-const amt  = document.getElementById("a").value;
-
-if(!desc || !amt){
-  return alert("Fill all fields");
-}
-
-db.ref("data/"+year+"/income").push({
-  d: desc,
-  a: +amt,
-  locked:false
-});
-
-document.getElementById("d").value="";
-document.getElementById("a").value="";
-}
-
-// EXPENSE
-function expense(){
-app.innerHTML=`
-<input id="d" placeholder="Description"><input id="a">
-<button onclick="addExp()">Add</button>
-<ul id="list"></ul>
-`;
-
-db.ref("data/"+year+"/expense").on("value",s=>{
-list.innerHTML=Object.entries(s.val()||{}).map(([k,v])=>
-`<li>${v.d} ₹${v.a}
-<button onclick="del('${k}','expense')">❌</button>
-</li>`
-).join("");
-});
-}
-
-function addExp(){
-
-if(role !== "admin"){
-  return alert("❌ Only admin allowed");
-}
-
-const desc = document.getElementById("d").value;
-const amt  = document.getElementById("a").value;
-
-if(!desc || !amt){
-  return alert("Fill all fields");
-}
-
-db.ref("data/"+year+"/expense").push({
-  d: desc,
-  a: +amt,
-  locked:false
-});
-
-document.getElementById("d").value="";
-document.getElementById("a").value="";
-}  
-
-async function downloadPDF(){
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit:"pt", format:"a4" }); // pt gives better layout control
-  const pageW = doc.internal.pageSize.getWidth();
-  const pageH = doc.internal.pageSize.getHeight();
-
-  // 👉 OPTIONAL LOGO (base64)
-  const LOGO_BASE64 = null; // "data:image/png;base64,...."  (अगर नहीं है तो null रहने दो)
-
-  // ---------- HELPERS ----------
-  const currency = (n)=> `₹${(+n||0).toLocaleString("en-IN")}`;
-  const todayStr = new Date().toLocaleDateString();
-
-  function headerFooter(){
-    // Header band
-    doc.setFillColor(255,111,0);
-    doc.rect(0,0,pageW,64,"F");
-
-    // Logo
-    if(LOGO_BASE64){
-      doc.addImage(LOGO_BASE64, "PNG", 20, 10, 44, 44);
-    }
-
-    // Title
-    doc.setTextColor(255,255,255);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(18);
-    doc.text("JAI SHREE RAM NAVYUVAK SAMITI", pageW/2, 28, {align:"center"});
-
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(11);
-    doc.text(`Financial Report • ${year}`, pageW/2, 46, {align:"center"});
-
-    // Footer
-    doc.setFontSize(9);
-    doc.setTextColor(100);
-    doc.text(`Generated: ${todayStr}`, 20, pageH-18);
-
-    const pageCount = doc.internal.getNumberOfPages();
-    doc.text(`Page ${doc.internal.getCurrentPageInfo().pageNumber} / ${pageCount}`, pageW-100, pageH-18);
-  }
-
-  // Hook for every page
-  const didDrawPage = ()=> headerFooter();
-
-  // ---------- FETCH ----------
-  const snap = await db.ref("data/"+year).once("value");
-  const d = snap.val()||{};
-
-  const sum = o => Object.values(o||{}).reduce((a,b)=>a+(+b.a||0),0);
-
-  const monthly = sum(d.monthly);
-  const utsav   = sum(d.utsav);
-  const income  = sum(d.income);
-  const expense = sum(d.expense);
-
-  let pen = 0;
-  Object.values(d.monthly||{}).forEach(v=> pen += penalty(v.d));
-
-  const balance = monthly + utsav + income + pen - expense;
-
-  // ---------- KPI CARDS ----------
-  let y = 84;
-
-  function card(x, y, w, h, title, value, color=[255,111,0]){
-    doc.setFillColor(245,245,245);
-    doc.roundedRect(x,y,w,h,8,8,"F");
-
-    // top strip
-    doc.setFillColor(color[0],color[1],color[2]);
-    doc.roundedRect(x,y,w,6,6,6,"F");
-
-    doc.setTextColor(80);
-    doc.setFontSize(10);
-    doc.text(title, x+10, y+22);
-
-    doc.setTextColor(color[0],color[1],color[2]);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(14);
-    doc.text(currency(value), x+10, y+42);
-
-    doc.setFont("helvetica","normal");
-  }
-
-  const gap = 10;
-  const w = (pageW - 20*2 - gap*2)/3;
-  const h = 56;
-
-  card(20, y, w, h, "Monthly", monthly, [255,111,0]);
-  card(20+w+gap, y, w, h, "Penalty", pen, [255,152,0]);
-  card(20+(w+gap)*2, y, w, h, "Utsav", utsav, [255,111,0]);
-
-  y += h + gap;
-
-  card(20, y, w, h, "Income", income, [0,150,0]);
-  card(20+w+gap, y, w, h, "Expense", expense, [200,0,0]);
-  card(20+(w+gap)*2, y, w, h, "Final Balance", balance, [0,120,0]);
-
-  y += h + 16;
-
-    // ---------- MONTHLY TABLE ----------
-  const monthlyRows = Object.entries(d.monthly||{}).map(([k,v])=>[
-    k,
-    currency(v.a||0),
-    v.d || "-",
-    currency(penalty(v.d))
-  ]);
-
-  doc.autoTable({
-    startY: y,
-    head: [["Member/Month","Amount","Date","Penalty"]],
-    body: monthlyRows,
-    styles:{fontSize:9, cellPadding:6},
-    headStyles:{fillColor:[255,111,0]},
-    alternateRowStyles:{fillColor:[250,250,250]},
-    margin:{left:20, right:20},
-    didDrawPage
-  });
-
-  y = doc.lastAutoTable.finalY + 12;
-
-  // ---------- UTSAV ----------
-  const utsavRows = Object.entries(d.utsav||{}).map(([k,v])=>[
-    k, currency(v.a||0)
-  ]);
-
-  doc.autoTable({
-    startY: y,
-    head: [["Utsav","Amount"]],
-    body: utsavRows,
-    styles:{fontSize:9, cellPadding:6},
-    headStyles:{fillColor:[255,111,0]},
-    alternateRowStyles:{fillColor:[250,250,250]},
-    margin:{left:20, right:20},
-    didDrawPage
-  });
-
-  y = doc.lastAutoTable.finalY + 12;
-
-  // ---------- INCOME ----------
-  const incomeRows = Object.values(d.income||{}).map(v=>[
-    v.d || "-", currency(v.a)
-  ]);
-
-  doc.autoTable({
-    startY: y,
-    head: [["Income","Amount"]],
-    body: incomeRows,
-    styles:{fontSize:9, cellPadding:6},
-    headStyles:{fillColor:[0,150,0]},
-    alternateRowStyles:{fillColor:[250,250,250]},
-    margin:{left:20, right:20},
-    didDrawPage
-  });
-
-  y = doc.lastAutoTable.finalY + 12;
-
-  // ---------- EXPENSE ----------
-  const expenseRows = Object.values(d.expense||{}).map(v=>[
-    v.d || "-", currency(v.a)
-  ]);
-
-  doc.autoTable({
-    startY: y,
-    head: [["Expense","Amount"]],
-    body: expenseRows,
-    styles:{fontSize:9, cellPadding:6},
-    headStyles:{fillColor:[200,0,0]},
-    alternateRowStyles:{fillColor:[250,250,250]},
-    margin:{left:20, right:20},
-    didDrawPage
-  });
-
-  y = doc.lastAutoTable.finalY + 20;
-
-  // ---------- SIGNATURE SECTION ----------
-  const sigY = Math.min(y, pageH - 120);
-
-  function signBox(x, title){
-    doc.setDrawColor(180);
-    doc.line(x, sigY, x+160, sigY);
-    doc.setFontSize(10);
-    doc.setTextColor(80);
-    doc.text(title, x, sigY+14);
-  }
-
-  signBox(20, "Adhyaksha Signature");
-  signBox(220, "Sachiv Signature");
-  signBox(420, "Date");
-
-  // Ensure header/footer on first page too
-  doc.setPage(1);
-  headerFooter();
-
-  // SAVE
-  doc.save(`Jai_Shree_Ram_Navyuvak_Samiti_${year}.pdf`);
-}
-
-  
-/* ===== UTSAV INTEREST REGISTER ===== */
-
-function interest() {
-  app.innerHTML = `
-    <h3>💰 उत्सव ब्याज रजिस्टर</h3>
-
-    <div class="card">
-      <label>उत्सव चुनें</label>
-      <select id="loanFestival">
-        ${utsavList.map(f =>
-          `<option value="${f}">${f}</option>`
-        ).join("")}
-      </select>
-
-      <label>पैसे लेने वाले का नाम</label>
-      <input id="borrower" placeholder="पूरा नाम">
-
-      <label>मोबाइल नंबर</label>
-      <input id="borrowerPhone" type="tel"
-        placeholder="मोबाइल नंबर">
-
-      <label>मूलधन (₹)</label>
-      <input id="principal" type="number"
-        min="1" step="0.01"
-        placeholder="जैसे 5000">
-
-      <label>पैसे देने की तारीख</label>
-      <input id="loanDate" type="date">
-
-      <div id="loanPreview"></div>
-
-      <button onclick="saveLoan()">
-        💾 ब्याज रिकॉर्ड सेव करें
-      </button>
-    </div>
-
-    <h3>📋 दिए गए उधार का रिकॉर्ड</h3>
-    <div id="loanList">लोड हो रहा है...</div>
-  `;
-
-  document.getElementById("loanDate").value =
-    new Date().toISOString().slice(0, 10);
-
-  document.getElementById("principal")
-    .addEventListener("input", updateLoanPreview);
-
-  document.getElementById("loanDate")
-    .addEventListener("change", updateLoanPreview);
-
-  updateLoanPreview();
-  loadLoans();
-}
-
-function calculateLoan(principal, date) {
-  const amount = Number(principal);
-  const start = new Date(date + "T12:00:00");
-  const due = new Date(start);
-
-  due.setFullYear(due.getFullYear() + 1);
-
-  const interestAmount =
-    Math.round(amount * 30 / 100 * 100) / 100;
-
-  return {
-    interest: interestAmount,
-    total: amount + interestAmount,
-    dueDate: [
-      due.getFullYear(),
-      String(due.getMonth() + 1).padStart(2, "0"),
-      String(due.getDate()).padStart(2, "0")
-    ].join("-")
-  };
-}
-
-function updateLoanPreview() {
-  const p = Number(document.getElementById("principal")?.value);
-  const date = document.getElementById("loanDate")?.value;
-  const preview = document.getElementById("loanPreview");
-
-  if (!preview) return;
-
-  if (!(p > 0) || !date) {
-    preview.textContent = "";
-    return;
-  }
-
-  const c = calculateLoan(p, date);
-
-  preview.textContent =
-    `एक साल का ब्याज: ₹${c.interest} | ` +
-    `कुल वापसी: ₹${c.total} | ` +
-    `नियत तारीख: ${c.dueDate}`;
-}
-
-async function saveLoan() {
-  if (role !== "admin") {
-    return alert("केवल Admin रिकॉर्ड सेव कर सकता है।");
-  }
-
-  const festival =
-    document.getElementById("loanFestival").value;
-  const borrower =
-    document.getElementById("borrower").value.trim();
-  const phone =
-    document.getElementById("borrowerPhone").value.trim();
-  const principal =
-    Number(document.getElementById("principal").value);
-  const issueDate =
-    document.getElementById("loanDate").value;
-
-  if (!borrower || !issueDate ||
-      !Number.isFinite(principal) || principal <= 0) {
-    return alert("नाम, सही रकम और तारीख भरें।");
-  }
-
-  const c = calculateLoan(principal, issueDate);
-
-  const record = {
-    festival,
-    borrower,
-    phone,
-    principal,
-    annualRate: 30,
-    interest: c.interest,
-    totalDue: c.total,
-    issueDate,
-    dueDate: c.dueDate,
-    status: "pending",
-    principalReceived: 0,
-    interestReceived: 0,
-    returnedAt: ""
-  };
-
-  try {
-    await db.ref(`data/${year}/utsavLoans`).push(record);
-
-    alert("ब्याज रिकॉर्ड सेव हो गया।");
-    interest();
-  } catch (err) {
-    console.error(err);
-    alert("रिकॉर्ड सेव नहीं हुआ: " + err.message);
-  }
-}
-
-async function loadLoans() {
-  const list = document.getElementById("loanList");
-  if (!list) return;
-
-  try {
-    const snap = await db.ref(
-      `data/${year}/utsavLoans`
-    ).once("value");
-
-    const records = snap.val() || {};
-    list.replaceChildren();
-
-    if (!Object.keys(records).length) {
-      list.textContent = "अभी कोई उधार रिकॉर्ड नहीं है।";
-      return;
-    }
-
-    Object.entries(records).forEach(([id, v]) => {
-      const card = document.createElement("div");
-      card.className = "card";
-
-      const heading = document.createElement("h4");
-      heading.textContent = `${v.festival} — ${v.borrower}`;
-
-      const details = document.createElement("p");
-      details.textContent =
-        `मूलधन ₹${v.principal} | ब्याज ₹${v.interest} | ` +
-        `कुल वापसी ₹${v.totalDue} | तारीख ${v.dueDate}`;
-
-      const status = document.createElement("p");
-      status.textContent =
-        v.status === "returned"
-          ? "✅ मूलधन और ब्याज वापस मिला"
-          : "⏳ वापसी बाकी";
-
-      card.append(heading, details, status);
-
-      if (v.status !== "returned") {
-        const btn = document.createElement("button");
-        btn.textContent = "पूरा पैसा वापस मिला";
-        btn.onclick = () => markLoanReturned(id);
-        card.appendChild(btn);
-      }
-
-      list.appendChild(card);
-    });
-  } catch (err) {
-    console.error(err);
-    list.textContent = "रिकॉर्ड लोड नहीं हो पाया।";
-  }
-}
-
-async function markLoanReturned(id) {
-  if (role !== "admin") {
-    return alert("केवल Admin वापसी दर्ज कर सकता है।");
-  }
-
-  if (!confirm(
-    "क्या पूरा मूलधन और ब्याज वास्तव में वापस मिल गया है?"
-  )) return;
-
-  const ref = db.ref(`data/${year}/utsavLoans/${id}`);
-
-  try {
-    const snap = await ref.once("value");
-    const loan = snap.val();
-
-    if (!loan || loan.status === "returned") {
-      return alert("रिकॉर्ड नहीं मिला या पहले ही वापस दर्ज है।");
-    }
-
-    await ref.update({
-      status: "returned",
-      principalReceived: Number(loan.principal),
-      interestReceived: Number(loan.interest),
-      returnedAt: new Date().toISOString()
-    });
-
-    alert("वापसी दर्ज हो गई।");
-    loadLoans();
-  } catch (err) {
-    console.error(err);
-    alert("वापसी सेव नहीं हुई: " + err.message);
-  }
-                                                     }
-// SETTINGS
-function settings(){
-app.innerHTML=`
-<input id="pass">
-<select id="roleSelect">
-<option>admin</option>
-<option>adhyaksha</option>
-<option>upadhyaksha</option>
-<option>member</option>
-</select>
-<button onclick="login()">Login</button>
-
-<h3>Change Password</h3>
-<input id="newPass">
-<button onclick="changePass()">Update</button>
-
-<h3>Opening Balance</h3>
-<input id="openAmt" type="number">
-<button onclick="saveOpen()">Save</button>
-
-<h3>Restore data</h3>
-<input type="file" id="restoreFile">
-<button onclick="restoreData()">♻ Restore</button>
-
-<h3>Lock / Approval</h3>
-<button onclick="lockData()">🔒 Lock</button>
-<button onclick="approve()">✅ Approve</button>
-
-Adhyaksha: ${approvals.adhyaksha?"✔":"❌"}<br>
-Upadhyaksha: ${approvals.upadhyaksha?"✔":"❌"}<br>
-Member: ${approvals.member?"✔":"❌"}
-`;
-}
-
-function backupData(){
-
-db.ref("data/"+year).once("value",snap=>{
-let data = snap.val();
-
-let blob = new Blob([JSON.stringify(data,null,2)], {
-type:"application/json"
-});
-
-let a = document.createElement("a");
-a.href = URL.createObjectURL(blob);
-a.download = "backup_"+year+".json";
-a.click();
-
-});
-
-}
-
-function restoreData(){
-
-if(role !== "admin"){
-return alert("Admin only");
-}
-
-let file = document.getElementById("restoreFile").files[0];
-
-if(!file) return alert("File select karo");
-
-let reader = new FileReader();
-
-reader.onload = function(e){
-
-try{
-
-let data = JSON.parse(e.target.result);
-
-// 🔥 overwrite data
-db.ref("data/"+year).set(data);
-
-alert("✅ Restore complete");
-
-}catch(err){
-alert("❌ Invalid file");
-}
-
-};
-
-reader.readAsText(file);
-
-}
-  
-function login(){
-let r=roleSelect.value;
-
-if(pass.value===passwords[r]){
-role=r;
-isAdmin = (r==="admin");
-alert(r+" login");
-}else alert("Wrong");
-}
-
-function changePass(){
-passwords[role]=newPass.value;
-db.ref("settings/passwords/"+role).set(newPass.value);
-alert("Updated");
-}
-
-function saveOpen(){
-db.ref("settings/open").set(+openAmt.value);
-}
-
-// LOCK
-function lockData(){
-if(role!=="admin") return alert("Admin only");
-
-["monthly","income","expense","utsav"].forEach(p=>{
-db.ref("data/"+year+"/"+p).once("value",s=>{
-Object.keys(s.val()||{}).forEach(k=>{
-db.ref("data/"+year+"/"+p+"/"+k+"/locked").set(true);
-});
-});
-});
-  
-alert("Locked");
-}
-
-// APPROVE
-function approve(){
-if(role==="admin") return alert("Admin not allowed");
-db.ref("settings/approvals/"+role).set(true);
-alert("Approved");
-}
-
-// ROUTE
-function page(e, p) {
-  // पुराने auto-navigation call जैसे page("dashboard")
-  // को भी सपोर्ट करें।
-  if (typeof e === "string") {
-    p = e;
-    e = null;
-  }
-
-  document.querySelectorAll(".tabs div")
-    .forEach(el => el.classList.remove("active"));
-
-  if (e && e.target) {
-    e.target.classList.add("active");
-  } else {
-    document.querySelectorAll(".tabs div").forEach(el => {
-      if (el.getAttribute("onclick")?.includes(`'${p}'`)) {
-        el.classList.add("active");
-      }
-    });
-  }
-
-  if (p === "dashboard") dashboard();
-  if (p === "members") members();
-  if (p === "monthly") monthly();
-  if (p === "utsav") utsav();
-  if (p === "interest") interest();
-  if (p === "income") income();
-  if (p === "expense") expense();
-  if (p === "settings") settings();
-}
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log("SW registered"))
-      .catch(err => console.log("SW error", err));
-  });
-}
-  
-/* ✅ YEH NAYA CODE */
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-});
-
-function installApp(){
-  if(deferredPrompt){
-    deferredPrompt.prompt();
-  } else {
-    alert("App already installed or not supported");
-  }
-}
-</script>
-
-</body>
-</html>
