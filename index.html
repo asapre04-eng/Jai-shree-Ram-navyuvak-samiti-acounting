@@ -450,6 +450,18 @@ let monthly=sum(d.monthly);
 let utsav=sum(d.utsav);
 let income=sum(d.income);
 let expense=sum(d.expense);
+const loans = Object.values(d.utsavLoans || {});
+
+const pendingPrincipal = loans
+  .filter(v => v.status !== "returned")
+  .reduce((total, v) => total + (+v.principal || 0), 0);
+
+const interestReceived = loans
+  .reduce((total, v) => total + (+v.interestReceived || 0), 0);
+
+const interestPending = loans
+  .filter(v => v.status !== "returned")
+  .reduce((total, v) => total + (+v.interest || 0), 0);
 
 let pen=0;
 Object.values(d.monthly||{}).forEach(v=>pen+=penalty(v.d));
