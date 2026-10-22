@@ -1491,19 +1491,35 @@ alert("Approved");
 
 // ROUTE
 function page(e,p){
+function page(e, p) {
+  // पुराने auto-navigation call जैसे page("dashboard")
+  // को भी सपोर्ट करें।
+  if (typeof e === "string") {
+    p = e;
+    e = null;
+  }
 
-document.querySelectorAll('.tabs div').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll(".tabs div")
+    .forEach(el => el.classList.remove("active"));
 
-e.target.classList.add('active');
+  if (e && e.target) {
+    e.target.classList.add("active");
+  } else {
+    document.querySelectorAll(".tabs div").forEach(el => {
+      if (el.getAttribute("onclick")?.includes(`'${p}'`)) {
+        el.classList.add("active");
+      }
+    });
+  }
 
-if(p==="dashboard") dashboard();
-if(p==="members") members();
-if(p==="monthly") monthly();
-if(p==="utsav") utsav();
-if(p==="income") income();
-if(p==="expense") expense();
-if(p==="settings") settings();
-
+  if (p === "dashboard") dashboard();
+  if (p === "members") members();
+  if (p === "monthly") monthly();
+  if (p === "utsav") utsav();
+  if (p === "interest") interest();
+  if (p === "income") income();
+  if (p === "expense") expense();
+  if (p === "settings") settings();
 }
 
 if ('serviceWorker' in navigator) {
