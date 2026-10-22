@@ -475,11 +475,21 @@ out.innerHTML=`
 <div class='card'>🎊 Utsav<br><div class='big'>₹${utsav}</div></div>
 <div class='card'>📥 Income<br><div class='big'>₹${income}</div></div>
 <div class='card'>📤 Expense<br><div class='big'>₹${expense}</div></div>
-<div class='card'>🏦 Balance<br><div class='big'>₹${open+monthly+pen+utsav+income-expense}</div></div>
-`;
-});
+<div class='card'>💰 ब्याज बाकी<br>
+  <div class='big'>₹${interestPending}</div>
+</div>
 
-}
+<div class='card'>📥 ब्याज प्राप्त<br>
+  <div class='big'>₹${interestReceived}</div>
+</div>
+
+<div class='card'>🤝 उधार दिया मूलधन<br>
+  <div class='big'>₹${pendingPrincipal}</div>
+</div>
+
+<div class='card'>🏦 उपलब्ध नकद<br>
+  <div class='big'>₹${open+monthly+pen+utsav+income-expense-pendingPrincipal+interestReceived}</div>
+</div>
 
 function loadYears(){
 
