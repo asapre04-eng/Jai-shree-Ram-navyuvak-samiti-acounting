@@ -57,7 +57,7 @@ small,.muted{color:#666}.notice{padding:10px 12px;background:#fff0d8;border-radi
 </style>
 </head>
 <body>
-  <div id="loader"><img src="https://i.ibb.co/7Ny3fJTk/1000193664-removebg-preview.png" alt="Loading"></div>
+<div id="loader"><img src="https://i.ibb.co/7Ny3fJTk/1000193664-removebg-preview.png" alt="Loading"></div>
 <div class="header"><img src="https://i.ibb.co/60VBLD0J/1000195482-modified.png" class="header-img" alt="Jai Shree Ram Navyuvak Samiti"></div>
 <nav class="tabs">
 <div data-page="dashboard" class="active" onclick="page('dashboard',this)">🏠 Dashboard</div>
@@ -185,12 +185,12 @@ async function loadMonthly(){
  list.innerHTML=Object.entries(mem).map(([id,v],i)=>{const k=id+"_"+mth,val=data[k]||{};return `<div class="card"><b>${i+1}. ${esc(v.name)}</b><div class="row"><div><label>राशि ₹</label><input type="number" min="0" id="ma_${id}" value="${val.a??""}"></div><div><label>भुगतान तारीख</label><input type="date" id="md_${id}" value="${esc(val.d||"")}"></div></div><small>जुर्माना: ${money(penalty(val.d))}</small><br><button onclick="saveMonthly('${k}','${id}')">सेव</button></div>`}).join("")||'<div class="empty">पहले सदस्य जोड़ें।</div>';
  }catch(e){list.textContent=e.message}
 }
-  async function saveMonthly(key,id){if(!isAdmin())return alert("केवल Admin सेव कर सकता है");const a=document.getElementById("ma_"+id).value,d=document.getElementById("md_"+id).value;if(a!==""&&(!Number.isFinite(Number(a))||Number(a)<0))return alert("राशि सही भरें");try{const old=(await path("monthly/"+key).once("value")).val()||{};if(!canEdit(old))return alert("Locked record: approval आवश्यक");await path("monthly/"+key).update({a:a===""?"":Number(a),d,locked:false});resetApproval();loadMonthly()}catch(e){alert(e.message)}}
+async function saveMonthly(key,id){if(!isAdmin())return alert("केवल Admin सेव कर सकता है");const a=document.getElementById("ma_"+id).value,d=document.getElementById("md_"+id).value;if(a!==""&&(!Number.isFinite(Number(a))||Number(a)<0))return alert("राशि सही भरें");try{const old=(await path("monthly/"+key).once("value")).val()||{};if(!canEdit(old))return alert("Locked record: approval आवश्यक");await path("monthly/"+key).update({a:a===""?"":Number(a),d,locked:false});resetApproval();loadMonthly()}catch(e){alert(e.message)}}
 function canEdit(v){if(!v||((!v.a)&&(!v.d)))return true;if(!isAdmin())return false;if(v.locked===undefined||v.locked===false)return true;return v.locked===true&&approvals.adhyaksha&&approvals.upadhyaksha&&approvals.member}
 function resetApproval(){db.ref("settings/approvals").set({adhyaksha:false,upadhyaksha:false,member:false})}
 function utsav(){
  app.innerHTML=`<h3>🎊 उत्सव रजिस्टर</h3><p class="notice">किसी उत्सव के फोल्डर पर टच करके उसका चंदा, अन्य आय और खर्च एक साथ देखें।</p><div id="festivalFolders" class="festival-folders"></div><hr><h3>🧾 सदस्यवार चंदा दर्ज करें</h3><label>उत्सव चुनें</label><select id="festival" onchange="loadUtsav()">${utsavList.map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join("")}</select><div id="utsavList"></div><button onclick="saveAllUtsav()">💾 सभी भुगतान सेव करें</button>`;
- document.getElementById("festivalFolders").innerHTML=utsavList.map(f=>`<div class="festival-folder" role="button" tabindex="0" onclick="openFestival('${esc(f)}')"><div class="folder-icon">📁</div><h4>${esc(f)}</h4><small>Collection · Income · Expenses</small></div>`).join("");
+  document.getElementById("festivalFolders").innerHTML=utsavList.map(f=>`<div class="festival-folder" role="button" tabindex="0" onclick="openFestival('${esc(f)}')"><div class="folder-icon">📁</div><h4>${esc(f)}</h4><small>Collection · Income · Expenses</small></div>`).join("");
  loadUtsav();
 }
 async function openFestival(f){
@@ -283,8 +283,9 @@ async function loadLoans(){
  card.appendChild(actions);list.appendChild(card)
  })
  }catch(e){list.textContent="लोड नहीं हुआ: "+e.message}
- }
-  async function editLoan(id){
+}
+
+async function editLoan(id){
  if(!isAdmin())return alert("केवल Admin रिकॉर्ड एडिट कर सकता है");
  try{
   const ref=path("utsavLoans/"+id),snap=await ref.once("value"),v=snap.val();if(!v)return alert("रिकॉर्ड नहीं मिला");
@@ -348,8 +349,8 @@ function settings(){
  <div class="card"><h4>Backup / Restore</h4><button onclick="backupData()">Backup डाउनलोड</button><label>JSON backup फ़ाइल चुनें</label><input type="file" id="restoreFile" accept=".json,application/json"><button onclick="restoreData()">Restore</button></div>
  <div class="card"><h4>Lock / Approval</h4><button onclick="lockData()">🔒 वर्तमान वर्ष के रिकॉर्ड Lock करें</button><button onclick="approve()">✅ अपनी Approval दर्ज करें</button><p>Adhyaksha: ${approvals.adhyaksha?"✔":"❌"}<br>Upadhyaksha: ${approvals.upadhyaksha?"✔":"❌"}<br>Member: ${approvals.member?"✔":"❌"}</p></div>
  <div class="notice">सुरक्षा सूचना: इस ऐप में role/password की जाँच client-side है। वास्तविक सुरक्षा के लिए Firebase Authentication और Database Rules लगाना आवश्यक है।</div>`;
-}
-async function login(){const r=document.getElementById("roleSelect").value,p=document.getElementById("loginPass").value;if(p===passwords[r]){role=r;alert(r+" login");settings()}else alert("गलत पासवर्ड")}
+  }
+  async function login(){const r=document.getElementById("roleSelect").value,p=document.getElementById("loginPass").value;if(p===passwords[r]){role=r;alert(r+" login");settings()}else alert("गलत पासवर्ड")}
 async function changePass(){if(!role||role==="viewer")return alert("पहले login करें");const p=document.getElementById("newPass").value.trim();if(p.length<4)return alert("कम से कम 4 अक्षर का पासवर्ड रखें");try{await db.ref("settings/passwords/"+role).set(p);passwords[role]=p;alert("पासवर्ड अपडेट हुआ");settings()}catch(e){alert(e.message)}}
 async function saveOpen(){if(!isAdmin())return alert("केवल Admin");const a=Number(document.getElementById("openAmt").value);if(!Number.isFinite(a)||a<0)return alert("सही राशि भरें");try{await db.ref("settings/open").set(a);alert("Opening balance सेव हुआ")}catch(e){alert(e.message)}}
 async function backupData(){try{const s=await db.ref().once("value"),blob=new Blob([JSON.stringify(s.val(),null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="samiti-backup-"+year+".json";a.click();URL.revokeObjectURL(a.href)}catch(e){alert("Backup नहीं हुआ: "+e.message)}}
@@ -360,32 +361,58 @@ async function downloadPDF(){
  try{
  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:"pt",format:"a4"}),d=await readYear(),open=await getOpening(),pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight();
  const cur=n=>"Rs. "+(Number(n)||0).toLocaleString("en-IN",{maximumFractionDigits:2});
+ const memberSnap=await db.ref("members").once("value"),memberData=memberSnap.val()||{};
+ const memberName=id=>memberData[id]?.name||memberData[id]?.fullName||memberData[id]?.memberName||"नाम उपलब्ध नहीं";
+ const monthlyRows=Object.entries(d.monthly||{}).map(([k,v])=>{
+   const m=String(k).match(/_(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/);
+   const month=m?m[1]:"महीना नहीं";const id=m?String(k).slice(0,-(month.length+1)):String(k);
+   return [memberName(id)+" / "+month,cur(v.a),v.d||"-",cur(penalty(v.d))];
+ });
+ const festivalRows=Object.entries(d.utsav||{}).map(([k,v])=>{
+   let festival=utsavList.find(f=>String(k).endsWith("_"+f)||String(k).startsWith(f+"_")||k===f);
+   let id=festival?(String(k).endsWith("_"+festival)?String(k).slice(0,-festival.length-1):String(k).startsWith(festival+"_")?String(k).slice(festival.length+1):""):"";
+   let amount=festivalAmount(v);
+   if(k===festival&&v&&typeof v==="object") return Object.entries(v).map(([mid,x])=>[festival,memberName(mid),cur(festivalAmount(x))]);
+   return [[festival||"अन्य उत्सव",memberName(id||v?.memberId||""),cur(amount)]];
+ }).flat().filter(row=>row[2]!==cur(0));
  const monthly=sumAmounts(d.monthly),utsav=sumAmounts(d.utsav),inc=sumAmounts(d.income),exp=sumAmounts(d.expense),pen=Object.values(d.monthly||{}).reduce((s,v)=>s+penalty(v.d),0);
  const loans=Object.values(d.utsavLoans||{}),outstanding=loans.filter(v=>v.status!=="returned").reduce((s,v)=>s+(Number(v.principal)||0),0),interestReceived=loans.reduce((s,v)=>s+(Number(v.interestReceived)||0),0),cash=open+monthly+pen+utsav+inc-exp-outstanding+interestReceived;
- function head(){doc.setFillColor(34,55,72);doc.rect(0,0,pw,66,"F");doc.setFillColor(255,145,0);doc.rect(0,66,pw,5,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("JAI SHREE RAM NAVYUVAK SAMITI",pw/2,25,{align:"center"});doc.setFont("helvetica","normal");doc.setFontSize(10);doc.text("ANNUAL FINANCE DASHBOARD  |  "+year,pw/2,44,{align:"center"});doc.setTextColor(90);doc.setFontSize(8);doc.text("CONFIDENTIAL • Generated: "+new Date().toLocaleDateString(),20,ph-15)}
+ function head(){doc.setFillColor(255,121,0);doc.rect(0,0,pw,66,"F");doc.setFillColor(255,193,7);doc.rect(0,66,pw,5,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("JAI SHREE RAM NAVYUVAK SAMITI",pw/2,25,{align:"center"});doc.setFont("helvetica","normal");doc.setFontSize(10);doc.text("ANNUAL FINANCE DASHBOARD  |  "+year,pw/2,44,{align:"center"});doc.setTextColor(90);doc.setFontSize(8);doc.text("CONFIDENTIAL • Generated: "+new Date().toLocaleDateString(),20,ph-15)}
  const hook=()=>head();let y=88;
- doc.setFillColor(238,246,249);doc.roundedRect(20,y,pw-40,58,8,8,"F");doc.setTextColor(35,60,75);doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text("TOTAL INCOME",32,y+17);doc.text("TOTAL EXPENSE",175,y+17);doc.text("AVAILABLE CASH",320,y+17);doc.text("OUTSTANDING",450,y+17);doc.setFontSize(13);doc.setTextColor(0,125,110);doc.text(cur(open+monthly+pen+utsav+inc),32,y+39);doc.setTextColor(205,80,60);doc.text(cur(exp),175,y+39);doc.setTextColor(35,60,75);doc.text(cur(cash),320,y+39);doc.text(cur(outstanding),450,y+39);y+=72;
- doc.setDrawColor(255,145,0);doc.setLineWidth(1);doc.line(20,y,pw-20,y);y+=16;
+ doc.setFillColor(246,246,246);doc.roundedRect(20,y,pw-40,62,8,8,"F");doc.setTextColor(120,55,15);doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text("TOTAL INCOME",32,y+17);doc.text("TOTAL EXPENSE",175,y+17);doc.text("AVAILABLE CASH",320,y+17);doc.text("OUTSTANDING",450,y+17);doc.setFontSize(13);doc.setTextColor(230,94,0);doc.text(cur(open+monthly+pen+utsav+inc),32,y+39);doc.setTextColor(180,45,20);doc.text(cur(exp),175,y+39);doc.setTextColor(120,55,15);doc.text(cur(cash),320,y+39);doc.text(cur(outstanding),450,y+39);y+=80;
+ doc.setDrawColor(255,121,0);doc.setLineWidth(1);doc.line(20,y,pw-20,y);y+=16;
  doc.setFontSize(11);doc.text(`Opening ${cur(open)} | Monthly ${cur(monthly)} | Penalty ${cur(pen)}`,20,y);y+=18;doc.text(`Utsav ${cur(utsav)} | Other income ${cur(inc)} | Expense ${cur(exp)}`,20,y);y+=18;doc.text(`Outstanding principal ${cur(outstanding)} | Interest received ${cur(interestReceived)} | Cash ${cur(cash)}`,20,y);y+=12;
- doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(34,55,72);doc.text("01  MONTHLY COLLECTION & PENALTY",20,y);y+=8;doc.autoTable({startY:y,head:[["Monthly key","Amount","Date","Penalty"]],body:Object.entries(d.monthly||{}).map(([k,v])=>[k,cur(v.a),v.d||"-",cur(penalty(v.d))]),styles:{fontSize:8},headStyles:{fillColor:[34,55,72],textColor:[255,255,255],fontStyle:"bold"},margin:{left:20,right:20},didDrawPage:hook});
- y=doc.lastAutoTable.finalY+12;
- doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(34,55,72);doc.text("02  FESTIVAL COLLECTION",20,y);y+=8;doc.autoTable({startY:y,head:[["Utsav member key","Amount"]],body:Object.entries(d.utsav||{}).map(([k,v])=>[k,cur(v.a)]),styles:{fontSize:8},headStyles:{fillColor:[34,55,72],textColor:[255,255,255],fontStyle:"bold"},margin:{left:20,right:20},didDrawPage:hook});
- y=doc.lastAutoTable.finalY+12;
- doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(34,55,72);doc.text("03  INTEREST REGISTER",20,y);y+=8;doc.autoTable({startY:y,head:[["Interest register","Festival","Borrower","Principal","Interest","Total due","Status"]],body:loans.map(v=>[v.issueDate||"-",v.festival||"-",v.borrower||"-",cur(v.principal),cur(v.interest),cur(v.totalDue),v.status||"-"]),styles:{fontSize:7},headStyles:{fillColor:[34,55,72],textColor:[255,255,255],fontStyle:"bold"},margin:{left:20,right:20},didDrawPage:hook});
- y=doc.lastAutoTable.finalY+12;
- doc.autoTable({startY:y,head:[["Income","Amount","Festival"]],body:Object.values(d.income||{}).map(v=>[v.d||"-",cur(v.a),v.festival||"-"]),styles:{fontSize:8},headStyles:{fillColor:[46,125,50]},margin:{left:20,right:20},didDrawPage:hook});
- y=doc.lastAutoTable.finalY+12;
- doc.autoTable({startY:y,head:[["Expense","Amount","Festival","Date"]],body:Object.values(d.expense||{}).map(v=>[v.d||"-",cur(v.a),v.festival||"General",v.date||"-"]),styles:{fontSize:8},headStyles:{fillColor:[198,40,40]},margin:{left:20,right:20},didDrawPage:hook});
+ doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(204,82,0);doc.text("01  MONTHLY COLLECTION & PENALTY",20,y);y+=8;doc.autoTable({startY:y,head:[["Member / Month","Amount","Date","Penalty"]],body:monthlyRows,styles:{fontSize:8,cellPadding:5},headStyles:{fillColor:[255,121,0],textColor:[255,255,255],fontStyle:"bold"},margin:{left:20,right:20},didDrawPage:hook});
+ y=doc.lastAutoTable.finalY+22;
+ doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(204,82,0);doc.text("02  FESTIVAL COLLECTION",20,y);y+=8;doc.autoTable({startY:y,head:[["Festival","Member name","Collection"]],body:festivalRows,styles:{fontSize:8,cellPadding:5},headStyles:{fillColor:[255,121,0],textColor:[255,255,255],fontStyle:"bold"},margin:{left:20,right:20},didDrawPage:hook});
+ y=doc.lastAutoTable.finalY+22;
+ doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(204,82,0);doc.text("03  INTEREST REGISTER",20,y);y+=8;doc.autoTable({startY:y,head:[["Date","Festival","Borrower","Principal","Interest","Total due","Status"]],body:loans.map(v=>[v.issueDate||"-",v.festival||"-",v.borrower||"-",cur(v.principal),cur(v.interest),cur(v.totalDue),v.status||"-"]),styles:{fontSize:7,cellPadding:4},headStyles:{fillColor:[255,121,0],textColor:[255,255,255],fontStyle:"bold"},margin:{left:20,right:20},didDrawPage:hook});
+ y=doc.lastAutoTable.finalY+22;
+ doc.autoTable({startY:y,head:[["Income description","Amount","Festival"]],body:Object.values(d.income||{}).map(v=>[v.desc||v.description||v.d||"-",cur(v.a),v.festival||"-"]),styles:{fontSize:8,cellPadding:5},headStyles:{fillColor:[255,145,0],textColor:[255,255,255],fontStyle:"bold"},margin:{left:20,right:20},didDrawPage:hook});
+ y=doc.lastAutoTable.finalY+22;
+ doc.autoTable({startY:y,head:[["Expense description","Amount","Festival","Date"]],body:Object.values(d.expense||{}).map(v=>[v.desc||v.description||v.d||"-",cur(v.a),v.festival||"General",v.date||v.d||"-"]),styles:{fontSize:8,cellPadding:5},headStyles:{fillColor:[230,80,45],textColor:[255,255,255],fontStyle:"bold"},margin:{left:20,right:20},didDrawPage:hook});
  for(let i=1;i<=doc.internal.getNumberOfPages();i++){doc.setPage(i);head();doc.setTextColor(80);doc.text(`Page ${i} / ${doc.internal.getNumberOfPages()}`,pw-75,ph-15)}
  doc.save(`Jai_Shree_Ram_Samiti_${year}.pdf`);
  }catch(e){console.error(e);alert("PDF नहीं बना: "+e.message)}
 }
 let deferredPrompt;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e});
-async function installApp(){if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null}else alert("Install option उपलब्ध नहीं है या ऐप पहले से install है।")}
+async function installApp(){
+ if(deferredPrompt){
+   try{deferredPrompt.prompt();const choice=await deferredPrompt.userChoice;if(choice?.outcome==="accepted")alert("ऐप इंस्टॉल प्रक्रिया शुरू हो गई है।");else alert("इंस्टॉल रद्द हुआ। जब चाहें फिर कोशिश करें।");}
+   catch(e){alert("इंस्टॉल शुरू नहीं हो सका: "+e.message)}
+   deferredPrompt=null;return;
+ }
+ const standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
+ if(standalone){alert("यह ऐप पहले से आपके फोन में इंस्टॉल है।");return;}
+ if(location.protocol!=="https:"&&location.hostname!=="localhost"){alert("Install के लिए वेबसाइट HTTPS पर खुलनी चाहिए। GitHub Pages/Netlify की https:// लिंक खोलें।");return;}
+ alert("Install विकल्प अभी ब्राउज़र ने उपलब्ध नहीं कराया।\n\nAndroid Chrome में:\n1. ऊपर ⋮ मेनू खोलें\n2. 'Install app' या 'Add to Home screen' चुनें\n3. Install दबाएँ\n\nअगर यह विकल्प नहीं दिखता, तो सुनिश्चित करें कि manifest.json और sw.js वेबसाइट पर मौजूद हैं और पेज को एक बार reload करें।");
+}
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(console.error));
 document.addEventListener("DOMContentLoaded",init);
-</script><script>
+</script>
+
+<script>
 // Long-press opens a persistent action panel; it stays open until another card is opened or user taps outside.
 (function(){
  let timer=null, target=null, startX=0, startY=0, moved=false;
